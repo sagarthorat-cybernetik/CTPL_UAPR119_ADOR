@@ -160,6 +160,15 @@ button, input, select {
 /* ===========================================================
    Login Page - Industrial Style
    =========================================================== */
+.login-header .brand {
+  width: 100%;
+}
+.login-header .brand .logos img{
+   
+        width: 60%;
+        height: auto;
+    
+} 
 .login-page {
   display: flex;
   align-items: center;
@@ -171,7 +180,7 @@ button, input, select {
 .login-container {
   width: 400px;
   text-align: center;
-  background: var(--bg-primary);
+  background: #eae0e0;
   border: 3px solid var(--accent-saffron);
   border-radius: var(--radius);
   padding: 2rem;
@@ -850,15 +859,15 @@ width: 80%;
    Admin Page - Industrial Style
    =========================================================== */
 .admin-page {
-  padding: 2rem;
+  /* padding: 2rem; */
   background: var(--bg-primary);
   height: 100vh;
   overflow-y: auto;
 }
 
 .admin-container {
-  max-width: 1000px;
-  margin: auto;
+  /* max-width: 1000px;
+  margin: auto; */
 }
 
 .admin-main {

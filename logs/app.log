@@ -128,3 +128,13 @@
 2025-11-05 14:38:14,490 - INFO - Pause command \u2192 Device 2, Circuit 2
 2025-11-05 14:38:16,031 - INFO - Continue command \u2192 Device 2, Circuit 2
 2025-11-05 14:38:22,362 - INFO - Continue command \u2192 Device 2, Circuit 1
+2025-11-05 15:30:36,643 - INFO - ===== BTS Monitoring System Started =====
+2025-11-05 15:30:36,647 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-05 15:30:36,648 - INFO - JWT auto-refreshed.
+2025-11-05 15:30:36,652 - INFO -  * Restarting with stat
+2025-11-05 15:30:37,087 - INFO - ===== BTS Monitoring System Started =====
+2025-11-05 15:30:37,091 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-05 15:30:37,092 - INFO - JWT auto-refreshed.
+2025-11-05 15:30:37,094 - WARNING -  * Debugger is active!
+2025-11-05 15:30:37,102 - INFO -  * Debugger PIN: 129-699-064
+2025-11-05 16:11:01,732 - ERROR - The client is using an unsupported version of the Socket.IO or Engine.IO protocols (further occurrences of this error will be logged with level INFO)
