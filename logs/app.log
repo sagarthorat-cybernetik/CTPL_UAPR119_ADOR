@@ -1,0 +1,130 @@
+2025-11-04 14:06:08,418 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:06:08,421 - INFO - Background DB reader thread started.
+2025-11-04 14:06:08,422 - WARNING - No token found to refresh.
+2025-11-04 14:06:08,422 - INFO - Starting Flask SocketIO server on port 5000...
+2025-11-04 14:06:08,430 - INFO -  * Restarting with stat
+2025-11-04 14:06:08,914 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:06:08,923 - INFO - Background DB reader thread started.
+2025-11-04 14:06:08,924 - WARNING - No token found to refresh.
+2025-11-04 14:06:08,925 - INFO - Starting Flask SocketIO server on port 5000...
+2025-11-04 14:06:08,928 - WARNING -  * Debugger is active!
+2025-11-04 14:06:08,933 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 14:06:48,905 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:06:48,910 - INFO - Background DB reader thread started.
+2025-11-04 14:06:48,913 - WARNING - No token found to refresh.
+2025-11-04 14:06:48,913 - INFO - Starting Flask SocketIO server on port 5000...
+2025-11-04 14:06:48,917 - INFO -  * Restarting with stat
+2025-11-04 14:06:49,295 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:06:49,297 - INFO - Background DB reader thread started.
+2025-11-04 14:06:49,298 - WARNING - No token found to refresh.
+2025-11-04 14:06:49,298 - INFO - Starting Flask SocketIO server on port 5000...
+2025-11-04 14:06:49,300 - WARNING -  * Debugger is active!
+2025-11-04 14:06:49,305 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 14:19:17,743 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:19:17,749 - INFO - Starting Flask SocketIO Server on port 5000...
+2025-11-04 14:19:17,750 - INFO - JWT auto-refreshed.
+2025-11-04 14:19:17,752 - INFO -  * Restarting with stat
+2025-11-04 14:19:18,169 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:19:18,174 - INFO - Starting Flask SocketIO Server on port 5000...
+2025-11-04 14:19:18,175 - INFO - JWT auto-refreshed.
+2025-11-04 14:19:18,317 - WARNING -  * Debugger is active!
+2025-11-04 14:19:18,324 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 14:20:09,079 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\onsite\\UAPR119\\adore\\software\\app.py', reloading
+2025-11-04 14:20:09,162 - INFO -  * Restarting with stat
+2025-11-04 14:20:09,651 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:20:09,657 - INFO - Starting Flask SocketIO Server on port 5000...
+2025-11-04 14:20:09,657 - INFO - JWT auto-refreshed.
+2025-11-04 14:20:09,661 - WARNING -  * Debugger is active!
+2025-11-04 14:20:09,667 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 14:20:10,697 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\onsite\\UAPR119\\adore\\software\\app.py', reloading
+2025-11-04 14:20:10,749 - INFO -  * Restarting with stat
+2025-11-04 14:20:11,179 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:20:11,189 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 14:20:11,189 - INFO - JWT auto-refreshed.
+2025-11-04 14:20:11,195 - WARNING -  * Debugger is active!
+2025-11-04 14:20:11,201 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 14:22:48,104 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\onsite\\UAPR119\\adore\\software\\app.py', reloading
+2025-11-04 14:22:48,160 - INFO -  * Restarting with stat
+2025-11-04 14:22:48,586 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 14:22:48,590 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 14:22:48,591 - INFO - JWT auto-refreshed.
+2025-11-04 14:22:48,593 - WARNING -  * Debugger is active!
+2025-11-04 14:22:48,598 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 14:22:48,814 - ERROR - The client is using an unsupported version of the Socket.IO or Engine.IO protocols (further occurrences of this error will be logged with level INFO)
+2025-11-04 14:24:00,765 - INFO - Pause command \u2192 Device 2, Circuit 4
+2025-11-04 14:24:02,352 - INFO - Continue command \u2192 Device 2, Circuit 4
+2025-11-04 14:50:28,322 - INFO - Continue command \u2192 Device 2, Circuit 1
+2025-11-04 14:50:29,084 - INFO - Stop command \u2192 Device 2, Circuit 1
+2025-11-04 14:50:35,010 - INFO - Stop command \u2192 Device 2, Circuit 2
+2025-11-04 15:11:51,845 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\onsite\\UAPR119\\adore\\software\\app.py', reloading
+2025-11-04 15:11:52,053 - INFO -  * Restarting with stat
+2025-11-04 15:11:52,643 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 15:11:52,648 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 15:11:52,648 - INFO - JWT auto-refreshed.
+2025-11-04 15:11:52,654 - WARNING -  * Debugger is active!
+2025-11-04 15:11:52,661 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 15:13:23,063 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\onsite\\UAPR119\\adore\\software\\allapi.py', reloading
+2025-11-04 15:13:23,132 - INFO -  * Restarting with stat
+2025-11-04 15:13:23,566 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 15:13:23,571 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 15:13:23,572 - INFO - JWT auto-refreshed.
+2025-11-04 15:13:23,574 - WARNING -  * Debugger is active!
+2025-11-04 15:13:23,582 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 15:13:33,785 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\onsite\\UAPR119\\adore\\software\\allapi.py', reloading
+2025-11-04 15:13:33,870 - INFO -  * Restarting with stat
+2025-11-04 15:13:34,320 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 15:13:34,325 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 15:13:34,326 - INFO - JWT auto-refreshed.
+2025-11-04 15:13:34,329 - WARNING -  * Debugger is active!
+2025-11-04 15:13:34,334 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 15:14:14,001 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 15:14:14,005 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 15:14:14,006 - INFO - JWT auto-refreshed.
+2025-11-04 15:14:14,386 - INFO -  * Restarting with stat
+2025-11-04 15:14:15,112 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 15:14:15,116 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 15:14:15,117 - INFO - JWT auto-refreshed.
+2025-11-04 15:14:15,119 - WARNING -  * Debugger is active!
+2025-11-04 15:14:15,124 - INFO -  * Debugger PIN: 135-569-440
+2025-11-04 15:15:02,761 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 15:15:02,765 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 15:15:02,766 - INFO - JWT auto-refreshed.
+2025-11-04 15:15:02,769 - INFO -  * Restarting with stat
+2025-11-04 15:15:03,167 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 15:15:03,171 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 15:15:03,172 - INFO - JWT auto-refreshed.
+2025-11-04 15:15:03,174 - WARNING -  * Debugger is active!
+2025-11-04 15:15:03,181 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 15:17:58,025 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\onsite\\UAPR119\\adore\\software\\app.py', reloading
+2025-11-04 15:17:58,081 - INFO -  * Restarting with stat
+2025-11-04 15:17:58,545 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 15:17:58,549 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 15:17:58,550 - INFO - JWT auto-refreshed.
+2025-11-04 15:17:58,554 - WARNING -  * Debugger is active!
+2025-11-04 15:17:58,558 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 15:18:12,064 - ERROR - The client is using an unsupported version of the Socket.IO or Engine.IO protocols (further occurrences of this error will be logged with level INFO)
+2025-11-04 15:37:42,684 - INFO - Continue command \u2192 Device 2, Circuit 3
+2025-11-04 15:37:43,546 - INFO - Pause command \u2192 Device 2, Circuit 3
+2025-11-04 16:31:41,462 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 16:31:41,466 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 16:31:41,467 - INFO - JWT auto-refreshed.
+2025-11-04 16:31:41,471 - INFO -  * Restarting with stat
+2025-11-04 16:31:41,886 - INFO - ===== BTS Monitoring System Started =====
+2025-11-04 16:31:41,891 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-04 16:31:41,891 - INFO - JWT auto-refreshed.
+2025-11-04 16:31:41,894 - WARNING -  * Debugger is active!
+2025-11-04 16:31:41,900 - INFO -  * Debugger PIN: 932-405-352
+2025-11-04 16:31:44,883 - ERROR - The client is using an unsupported version of the Socket.IO or Engine.IO protocols (further occurrences of this error will be logged with level INFO)
+2025-11-05 10:36:32,371 - INFO - ===== BTS Monitoring System Started =====
+2025-11-05 10:36:32,376 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-05 10:36:32,377 - INFO - JWT auto-refreshed.
+2025-11-05 10:36:32,381 - INFO -  * Restarting with stat
+2025-11-05 10:36:32,919 - INFO - ===== BTS Monitoring System Started =====
+2025-11-05 10:36:32,928 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-11-05 10:36:32,928 - INFO - JWT auto-refreshed.
+2025-11-05 10:36:32,933 - WARNING -  * Debugger is active!
+2025-11-05 10:36:32,941 - INFO -  * Debugger PIN: 129-699-064
+2025-11-05 10:36:51,447 - ERROR - The client is using an unsupported version of the Socket.IO or Engine.IO protocols (further occurrences of this error will be logged with level INFO)
+2025-11-05 14:38:14,490 - INFO - Pause command \u2192 Device 2, Circuit 2
+2025-11-05 14:38:16,031 - INFO - Continue command \u2192 Device 2, Circuit 2
+2025-11-05 14:38:22,362 - INFO - Continue command \u2192 Device 2, Circuit 1

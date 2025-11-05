@@ -1,0 +1,347 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: Loops BMS V2 CAN data
+
+
+VAL_TABLE_ BMS_PROTECTION 0 "NO FAULT" 1 "FAULT" ;
+VAL_TABLE_ BMS_STATUS 1 "IDLE" 2 "CHARGING" 3 "FULLY CHARGED" 4 "DISCHARGING" 5 "RESERVE" 6 "FULL DISCHARGED" 7 "SLEEP" 8 "IMMOBILIZE MODE" ;
+VAL_TABLE_ FET_STATUS 0 "OFF" 1 "ON" ;
+VAL_TABLE_ LED_STATUS 31 "HW FAULT" 3 "VOLTAGE PROTECTION" 5 "OVER CURRENT PROTECTION" 9 "TEMP PROTECTION" 30 "SOC 99 LEVEL" 14 "SOC 75 LEVEL" 6 "SOC 50 LEVEl" 2 "SOC 25 LEVEL" ;
+VAL_TABLE_ MODE 0 "MODE OFF" 1 "MODE ON" ;
+
+
+
+BO_ 2147483649 CellVol01_04: 8 Vector__XXX
+ SG_ CellVol01 : 7|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol02 : 23|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol03 : 39|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol04 : 55|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+
+BO_ 2147483650 CellVol05_08: 8 Vector__XXX
+ SG_ CellVol05 : 7|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol06 : 23|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol07 : 39|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol08 : 55|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+
+BO_ 2147483651 CellVol09_12: 8 Vector__XXX
+ SG_ CellVol09 : 7|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol10 : 23|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol11 : 39|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol12 : 55|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+
+BO_ 2147483652 CellVol13_16: 8 Vector__XXX
+ SG_ CellVol13 : 7|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol14 : 23|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol15 : 39|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol16 : 55|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+
+BO_ 2147483653 VolMinMaxAvg: 8 Vector__XXX
+ SG_ AvgCellVol : 39|16@0+ (0.001,0) [0|4.2] "V" Vector__XXX
+ SG_ MaxCellVol : 7|16@0+ (0.001,0) [0|4.2] "V" Vector__XXX
+ SG_ MinCellVol : 23|16@0+ (0.001,0) [0|4.2] "V" Vector__XXX
+ SG_ MaxVoltId : 55|8@0+ (1,0) [0|16] "" Vector__XXX
+ SG_ MinVoltId : 63|8@0+ (1,0) [0|16] "" Vector__XXX
+
+BO_ 2147483654 VolCurr: 8 Vector__XXX
+ SG_ PackCurr : 7|32@0- (0.001,0) [-500|500] "A" Vector__XXX
+ SG_ PackVol : 39|32@0+ (0.001,0) [0|65.535] "V" Vector__XXX
+
+BO_ 2147483655 MaxMinTempCellDev: 8 Vector__XXX
+ SG_ MaxTemp : 23|8@0- (1,0) [-40|110] "�C" Vector__XXX
+ SG_ MinTemp : 31|8@0- (1,0) [-40|110] "�C" Vector__XXX
+ SG_ MaxTempId : 39|8@0+ (1,0) [0|8] "" Vector__XXX
+ SG_ MinTempId : 47|8@0+ (1,0) [0|8] "" Vector__XXX
+ SG_ CellVolMinMaxDev : 55|16@0+ (1,0) [0|4.2] "V" Vector__XXX
+ SG_ CycleCount : 7|16@0+ (1,0) [0|65535] "" Vector__XXX
+
+BO_ 2147483656 SocSohStatus: 8 Vector__XXX
+ SG_ SOC : 7|8@0+ (1,0) [0|100] "%" Vector__XXX
+ SG_ SOCAh : 15|32@0+ (0.001,0) [0|500] "AH" Vector__XXX
+ SG_ SOH : 47|8@0+ (1,0) [0|255] "%" Vector__XXX
+ SG_ FetTemp : 55|8@0- (1,0) [-128|127] "�C" Vector__XXX
+ SG_ BmsStatus : 63|8@0+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 2147483657 ProtectionsAndWarnings: 8 Vector__XXX
+ SG_ CellUnderVolProt : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ CellOverVolProt : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ PackUnderVolProt : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ PackOverVolProt : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ChgUnderTempProt : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ChgOverTempProt : 5|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DchgUnderTempProt : 6|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DchgOverTempProt : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ CellOverDevProt : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ BattLowSocWarn : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ChgOverCurrProt : 10|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DchgOverCurrProt : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ CellUnderVolWarn : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ CellOverVolWarn : 13|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ FetTempProt : 14|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ResSocProt : 15|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ FetFailure : 16|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ TempSenseFault : 17|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ PackUnderVolWarn : 18|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ PackOverVolWarn : 19|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ChgUnderTempWarn : 20|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ChgOverTempWarn : 21|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DchgUnderTempWarn : 22|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DchgOverTempWarn : 23|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ LedStatus : 24|8@1+ (1,0) [0|31] "" Vector__XXX
+ SG_ CellBalStatus : 33|18@0+ (1,0) [0|1] "" Vector__XXX
+ SG_ PreChgFetStatus : 56|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ChgFetStatus : 57|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DchgFetStatus : 58|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ResStatus : 59|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ShortCktProt : 63|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ DschgPeakProt : 62|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 2147483660 CellVol17_18: 8 Vector__XXX
+ SG_ CellVol17 : 7|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+ SG_ CellVol18 : 23|16@0+ (0.0001,0) [0|4.2] "V" Vector__XXX
+
+BO_ 2147483661 VersionInfo: 8 Vector__XXX
+ SG_ HwVer : 55|16@0+ (1,0) [0|65535] "" Vector__XXX
+ SG_ FwVer : 31|24@0+ (1,0) [0|16777215] "" Vector__XXX
+
+BO_ 2147483658 Temperatures: 8 Vector__XXX
+ SG_ Temp1 : 7|8@0- (1,0) [-128|127] "�C" Vector__XXX
+ SG_ Temp2 : 15|8@0- (1,0) [-128|127] "�C" Vector__XXX
+ SG_ Temp3 : 23|8@0- (1,0) [-128|127] "�C" Vector__XXX
+ SG_ Temp4 : 31|8@0- (1,0) [-128|127] "�C" Vector__XXX
+ SG_ Temp5 : 39|8@0- (1,0) [-128|127] "�C" Vector__XXX
+ SG_ Temp6 : 47|8@0- (1,0) [-128|127] "�C" Vector__XXX
+ SG_ Temp7 : 55|8@0- (1,0) [-128|127] "�C" Vector__XXX
+ SG_ Temp8 : 63|8@0- (1,0) [-128|127] "�C" Vector__XXX
+
+BO_ 15 Voltage: 8 Vector__XXX
+ SG_ Ref_Volt : 7|16@0+ (1,0) [0|80] "V" Vector__XXX
+ SG_ V3_3_ref : 23|16@0+ (1,0) [0|5] "V" Vector__XXX
+ SG_ V5_ref : 39|16@0+ (1,0) [0|7] "V" Vector__XXX
+ SG_ V12_ref : 55|16@0+ (1,0) [0|15] "V" Vector__XXX
+
+
+
+CM_ BO_ 2147483649 "Cell voltages 1 to 4";
+CM_ SG_ 2147483649 CellVol01 "Cell voltage 1";
+CM_ SG_ 2147483649 CellVol02 "Cell voltage 2";
+CM_ SG_ 2147483649 CellVol03 "Cell voltage 3";
+CM_ SG_ 2147483649 CellVol04 "Cell voltage 4";
+CM_ BO_ 2147483650 "Cell voltages 5 to 8";
+CM_ SG_ 2147483650 CellVol05 "Cell voltage 5";
+CM_ SG_ 2147483650 CellVol06 "Cell voltage 6";
+CM_ SG_ 2147483650 CellVol07 "Cell voltage 7";
+CM_ SG_ 2147483650 CellVol08 "Cell voltage 8";
+CM_ BO_ 2147483651 "Cell voltages 9 to 12";
+CM_ SG_ 2147483651 CellVol09 "Cell voltage 9";
+CM_ SG_ 2147483651 CellVol10 "Cell voltage 10";
+CM_ SG_ 2147483651 CellVol11 "Cell voltage 11";
+CM_ SG_ 2147483651 CellVol12 "Cell voltage 12";
+CM_ BO_ 2147483652 "Cell voltages 13 to 16";
+CM_ SG_ 2147483652 CellVol13 "Cell voltage 13";
+CM_ SG_ 2147483652 CellVol14 "Cell voltage 14";
+CM_ SG_ 2147483652 CellVol15 "Cell voltage 15";
+CM_ SG_ 2147483652 CellVol16 "Cell voltage 16";
+CM_ BO_ 2147483653 "Max, Min Vol, Avg Vol, Max Vol Id and Min Vol Id";
+CM_ SG_ 2147483653 AvgCellVol "Average of all the cell voltages";
+CM_ SG_ 2147483653 MaxCellVol "Maximum of all the cell voltages";
+CM_ SG_ 2147483653 MinCellVol "Minimum of all the cell voltages";
+CM_ SG_ 2147483653 MaxVoltId "Cell Id with Max Voltage";
+CM_ SG_ 2147483653 MinVoltId "Cell Id with Max Voltage";
+CM_ BO_ 2147483654 "Pack Current, Pack Voltage and Cycles";
+CM_ SG_ 2147483654 PackCurr "Current of the battery pack";
+CM_ SG_ 2147483654 PackVol "Pack Voltage";
+CM_ BO_ 2147483655 "Max Temp and Id, Min Temp and Id, Cell Deviation";
+CM_ SG_ 2147483655 MaxTemp "Maximum of all the cell temperatures";
+CM_ SG_ 2147483655 MinTemp "Minimum of all the cell temperatures";
+CM_ SG_ 2147483655 MaxTempId "Temp Sensor Id with Max Temperature";
+CM_ SG_ 2147483655 MinTempId "Temp Sensor Id with Min Temperature";
+CM_ SG_ 2147483655 CellVolMinMaxDev "Cell voltage deviation";
+CM_ SG_ 2147483655 CycleCount "Cycle Count of the Battery";
+CM_ BO_ 2147483656 "SOC, SOH, Fet Temp and BMS Status";
+CM_ SG_ 2147483656 SOC "SOC % of the battery pack";
+CM_ SG_ 2147483656 SOCAh "Remaining capacity of the battery pack";
+CM_ SG_ 2147483656 SOH "SOH % of the battery pack";
+CM_ SG_ 2147483656 FetTemp "Temperature of the Mosfets conducting current";
+CM_ SG_ 2147483656 BmsStatus "Status of the BMS";
+CM_ BO_ 2147483657 "BMS proections and warnings";
+CM_ SG_ 2147483657 CellUnderVolProt "Cell Under Voltage Protection";
+CM_ SG_ 2147483657 CellOverVolProt "Cell Over Voltage Protection";
+CM_ SG_ 2147483657 PackUnderVolProt "Pack Under Voltage Protection";
+CM_ SG_ 2147483657 PackOverVolProt "Pack Over Voltage Protection";
+CM_ SG_ 2147483657 ChgUnderTempProt "Charge Under Temp Protection";
+CM_ SG_ 2147483657 ChgOverTempProt "Charge Over Temp Protection";
+CM_ SG_ 2147483657 DchgUnderTempProt "Discharge Under Temp Protection";
+CM_ SG_ 2147483657 DchgOverTempProt "Discharge Over Temp Protection";
+CM_ SG_ 2147483657 CellOverDevProt "Cell Over Deviation Protection";
+CM_ SG_ 2147483657 BattLowSocWarn "Battery Low SOC Warning";
+CM_ SG_ 2147483657 ChgOverCurrProt "Charge Over Current Protection";
+CM_ SG_ 2147483657 DchgOverCurrProt "Discharge Over Current Protection";
+CM_ SG_ 2147483657 CellUnderVolWarn "Cell Under Voltae Warning";
+CM_ SG_ 2147483657 CellOverVolWarn "Cell Over Voltage Warning";
+CM_ SG_ 2147483657 FetTempProt "Fet Temperature Protection";
+CM_ SG_ 2147483657 ResSocProt "Reserve SOC Protection";
+CM_ SG_ 2147483657 FetFailure "Fet Failure";
+CM_ SG_ 2147483657 TempSenseFault "Temparature Sensor Fault";
+CM_ SG_ 2147483657 PackUnderVolWarn "Pack Under Voltage Warning";
+CM_ SG_ 2147483657 PackOverVolWarn "Pack Over Voltage Protection";
+CM_ SG_ 2147483657 ChgUnderTempWarn "Charge Under Temp Warning";
+CM_ SG_ 2147483657 ChgOverTempWarn "Charge Over Temp Warning";
+CM_ SG_ 2147483657 DchgUnderTempWarn "Discharge Under Temp Warning";
+CM_ SG_ 2147483657 DchgOverTempWarn "Discharge Over Temp Warning";
+CM_ SG_ 2147483657 LedStatus "Led Status of the BMS";
+CM_ SG_ 2147483657 CellBalStatus "Cell Balancing Status";
+CM_ SG_ 2147483657 PreChgFetStatus "Pre Charge Fet Status";
+CM_ SG_ 2147483657 ChgFetStatus "Charge Fet Status";
+CM_ SG_ 2147483657 DchgFetStatus "Discharge Fet Status";
+CM_ SG_ 2147483657 ResStatus "Reserve Mode";
+CM_ SG_ 2147483657 ShortCktProt "Short Circuit Protection";
+CM_ SG_ 2147483657 DschgPeakProt "Peak Discharge Protection";
+CM_ BO_ 2147483660 "Cell voltages 17-18";
+CM_ SG_ 2147483660 CellVol17 "Cell voltage 17";
+CM_ SG_ 2147483660 CellVol18 "Cell voltage 18";
+CM_ BO_ 2147483661 "Firmware Version and Hardware Version";
+CM_ SG_ 2147483661 HwVer "Hardware Version";
+CM_ SG_ 2147483661 FwVer "Firmware Version";
+CM_ BO_ 2147483658 "Cell Temperatures";
+CM_ SG_ 2147483658 Temp1 "Temperature Sensor 1";
+CM_ SG_ 2147483658 Temp2 "Temperature Sensor 2";
+CM_ SG_ 2147483658 Temp3 "Temperature Sensor 3";
+CM_ SG_ 2147483658 Temp4 "Temperature Sensor 4";
+CM_ SG_ 2147483658 Temp5 "Temperature Sensor 5";
+CM_ SG_ 2147483658 Temp6 "Temperature Sensor 6";
+CM_ SG_ 2147483658 Temp7 "Temperature Sensor 7";
+CM_ SG_ 2147483658 Temp8 "Temperature Sensor 8";
+CM_ BO_ 15 "BMS tp voltage";
+CM_ SG_ 15 Ref_Volt "Ref voltage";
+CM_ SG_ 15 V3_3_ref "3.3 Volt ref";
+CM_ SG_ 15 V5_ref "5 V ref";
+CM_ SG_ 15 V12_ref "12 V ref";
+BA_DEF_ BO_  "Receivable" STRING ;
+BA_DEF_ BO_  "Sendable" STRING ;
+BA_DEF_ SG_  "DisplayDecimalPlaces" INT 0 65535;
+BA_DEF_ SG_  "HexadecimalOutput" STRING ;
+BA_DEF_ SG_  "LongName" STRING ;
+BA_DEF_  "Title" STRING ;
+BA_DEF_DEF_  "Receivable" "";
+BA_DEF_DEF_  "Sendable" "";
+BA_DEF_DEF_  "DisplayDecimalPlaces" 0;
+BA_DEF_DEF_  "HexadecimalOutput" "";
+BA_DEF_DEF_  "LongName" "";
+BA_DEF_DEF_  "Title" "canmatrix-Export";
+BA_ "Title" "BMS Data";
+BA_ "Receivable" BO_ 2147483649 "True";
+BA_ "Sendable" BO_ 2147483649 "False";
+BA_ "DisplayDecimalPlaces" SG_ 2147483649 CellVol01 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483649 CellVol02 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483649 CellVol03 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483649 CellVol04 3;
+BA_ "Receivable" BO_ 2147483650 "True";
+BA_ "Sendable" BO_ 2147483650 "False";
+BA_ "DisplayDecimalPlaces" SG_ 2147483650 CellVol05 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483650 CellVol06 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483650 CellVol07 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483650 CellVol08 3;
+BA_ "Receivable" BO_ 2147483651 "True";
+BA_ "Sendable" BO_ 2147483651 "False";
+BA_ "DisplayDecimalPlaces" SG_ 2147483651 CellVol09 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483651 CellVol10 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483651 CellVol11 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483651 CellVol12 3;
+BA_ "Receivable" BO_ 2147483652 "True";
+BA_ "Sendable" BO_ 2147483652 "False";
+BA_ "DisplayDecimalPlaces" SG_ 2147483652 CellVol13 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483652 CellVol14 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483652 CellVol15 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483652 CellVol16 3;
+BA_ "Receivable" BO_ 2147483653 "True";
+BA_ "Sendable" BO_ 2147483653 "False";
+BA_ "DisplayDecimalPlaces" SG_ 2147483653 AvgCellVol 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483653 MaxCellVol 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483653 MinCellVol 3;
+BA_ "Receivable" BO_ 2147483654 "True";
+BA_ "Sendable" BO_ 2147483654 "False";
+BA_ "DisplayDecimalPlaces" SG_ 2147483654 PackCurr 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483654 PackVol 3;
+BA_ "Receivable" BO_ 2147483655 "True";
+BA_ "Sendable" BO_ 2147483655 "False";
+BA_ "DisplayDecimalPlaces" SG_ 2147483655 CellVolMinMaxDev 3;
+BA_ "Receivable" BO_ 2147483656 "True";
+BA_ "Sendable" BO_ 2147483656 "False";
+BA_ "Receivable" BO_ 2147483657 "True";
+BA_ "Sendable" BO_ 2147483657 "False";
+BA_ "Receivable" BO_ 2147483660 "True";
+BA_ "Sendable" BO_ 2147483660 "False";
+BA_ "DisplayDecimalPlaces" SG_ 2147483660 CellVol17 3;
+BA_ "DisplayDecimalPlaces" SG_ 2147483660 CellVol18 3;
+BA_ "Receivable" BO_ 2147483661 "True";
+BA_ "Sendable" BO_ 2147483661 "False";
+BA_ "Receivable" BO_ 2147483658 "True";
+BA_ "Sendable" BO_ 2147483658 "False";
+BA_ "Receivable" BO_ 15 "True";
+BA_ "Sendable" BO_ 15 "False";
+VAL_ 2147483656 BmsStatus 1 "IDLE" 2 "CHARGING" 3 "FULLY CHARGED" 4 "DISCHARGING" 5 "RESERVE" 6 "FULL DISCHARGED" 7 "SLEEP" 8 "IMMOBILIZE MODE" ;
+VAL_ 2147483657 CellUnderVolProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 CellOverVolProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 PackUnderVolProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 PackOverVolProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 ChgUnderTempProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 ChgOverTempProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 DchgUnderTempProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 DchgOverTempProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 CellOverDevProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 BattLowSocWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 ChgOverCurrProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 DchgOverCurrProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 CellUnderVolWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 CellOverVolWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 FetTempProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 ResSocProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 FetFailure 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 TempSenseFault 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 PackUnderVolWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 PackOverVolWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 ChgUnderTempWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 ChgOverTempWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 DchgUnderTempWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 DchgOverTempWarn 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 LedStatus 2 "SOC 25 LEVEL" 3 "VOLTAGE PROTECTION" 5 "OVER CURRENT PROTECTION" 6 "SOC 50 LEVEl" 9 "TEMP PROTECTION" 14 "SOC 75 LEVEL" 30 "SOC 99 LEVEL" 31 "HW FAULT" ;
+VAL_ 2147483657 PreChgFetStatus 0 "OFF" 1 "ON" ;
+VAL_ 2147483657 ChgFetStatus 0 "OFF" 1 "ON" ;
+VAL_ 2147483657 DchgFetStatus 0 "OFF" 1 "ON" ;
+VAL_ 2147483657 ResStatus 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 ShortCktProt 0 "NO FAULT" 1 "FAULT" ;
+VAL_ 2147483657 DschgPeakProt 0 "NO FAULT" 1 "FAULT" ;
+

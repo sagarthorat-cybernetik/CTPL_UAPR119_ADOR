@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>BTS Monitor — Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- favicon -->
+  <link rel="icon" type="image/x-icon" href="/static/img/logo.png" />
+  <!-- External CSS only -->
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <!-- App Shell -->
+  <div class="app">
+
+    <!-- Sidebar: Devices & Circuits -->
+
+
+    <!-- Main Area -->
+    <main class="main">
+
+      <!-- Topbar with Title, Logo, Profile -->
+      <header class="topbar" id="topbar">
+        <div class="brand">
+          <div class="logos">
+            <img src="/static/img/cylogo.png" alt="Logocy" class="logo" />
+            <img src="/static/img/logo.svg" alt="Logocy" class="logo" />
+          </div>
+        </div>
+        <h1 class="title">Ador Control Dashboard</h1>
+        <div class="topbar-actions">
+            <div class="sidebar-actions">
+              <button class="btn-logout" id="adminBtn">Admin</button>
+              <button class="btn-logout" id="logoutBtn">Logout</button>
+            </div>
+        </div>
+      </header>
+
+      <!-- Filters / Toolbar (optional) -->
+      <!-- <section class="toolbar" id="toolbar"> -->
+        <!-- <div class="toolbar-left">
+          <button class="btn" id="refreshDevices">Refresh Devices</button>
+          <button class="btn" id="startSelected">Start Collection (Selected)</button>
+          <button class="btn" id="stopAll">Stop All</button>
+        </div> -->
+        <!-- <div class="toolbar-right">
+          <label class="field">
+            <span>Search</span>
+            <input type="text" id="searchCircuits" placeholder="Search circuits…" />
+          </label>
+          <label class="field">
+            <span>Sort</span>
+            <select id="sortCircuits">
+              <option value="name">Name</option>
+              <option value="status">Status</option>
+              <option value="updated">Last Updated</option>
+            </select>
+          </label>
+        </div> -->
+      <!-- </section> -->
+
+      <!-- Circuit Gallery -->
+      <section class="gallery" id="gallery">
+        <!-- JS fills with cards:
+        <article class="circuit-card" data-device-id="2" data-circuit-id="1">
+          <header class="card-header">
+            <h3 class="circuit-name">Circuit 1</h3>
+            <div class="badges">
+              <span class="badge status running" id="status-2-1">Running</span>
+              <span class="badge collect started" id="collect-2-1">Collect: Started</span>
+            </div>
+          </header>
+          <div class="metrics">
+            <div class="metric"><span class="label">Temp</span><span class="value" id="temp-2-1">--</span></div>
+            <div class="metric"><span class="label">Volt</span><span class="value" id="volt-2-1">--</span></div>
+            <div class="metric"><span class="label">Curr</span><span class="value" id="curr-2-1">--</span></div>
+            <div class="metric"><span class="label">Power</span><span class="value" id="power-2-1">--</span></div>
+            <div class="metric"><span class="label">Res</span><span class="value" id="res-2-1">--</span></div>
+          </div>
+          <footer class="card-actions">
+            <button class="btn btn-primary" data-action="collect">Collect</button>
+            <button class="btn btn-warning" data-action="pause">Pause</button>
+            <button class="btn btn-neutral" data-action="continue">Continue</button>
+            <button class="btn btn-danger" data-action="stop">Stop</button>
+            <button class="btn btn-ghost" data-action="open">Open</button>
+          </footer>
+        </article>
+        -->
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Circuit Detail Modal (Popup) -->
+  <div class="modal" id="circuitModal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="modalBackdrop" tabindex="-1"></div>
+
+    <div class="modal-content" role="document" aria-labelledby="modalTitle">
+      <header class="modal-header">
+        <h2 id="modalTitle">Circuit Detail</h2>
+        <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      </header>
+
+      <section class="modal-body">
+        <!-- Tabs -->
+        <nav class="tabs" role="tablist" aria-label="Circuit detail tabs">
+          <!-- <button class="tab active" data-tab="liveChart" role="tab" aria-selected="true">Graphs</button>
+          <button class="tab" data-tab="liveTable" role="tab" aria-selected="false">Table</button>
+          <button class="tab" data-tab="controls" role="tab" aria-selected="false">Controls</button>
+        <button class="btn btn-ghost" id="modalExport">Export CSV</button> -->
+          <div class="tabbtn">
+            <button class="tab active" data-tab="liveChart" role="tab" aria-selected="true">Graphs</button>
+            <button class="tab" data-tab="liveTable" role="tab" aria-selected="false">Table</button>
+            <button class="tab" data-tab="controls" role="tab" aria-selected="false">Controls</button>
+          </div>
+          <div class="downloadbtn">
+            <button class="btn btn-ghost" id="modalExport">Export Excel</button>
+          </div>
+        </nav>
+
+        <!-- Tab Panels -->
+        <div class="tab-panels">
+          <!-- Graphs Panel -->
+          <div class="tab-panel active" id="liveChart" role="tabpanel" aria-labelledby="Graphs">
+            <!-- Graph Navigation Buttons -->
+            <div class="graph-navigation">
+              <button class="btn btn-graph active" data-graph="temperature">Temperature</button>
+              <button class="btn btn-graph" data-graph="voltage">Voltage</button>
+              <button class="btn btn-graph" data-graph="current">Current</button>
+              <button class="btn btn-graph" data-graph="power">Power</button>
+              <button class="btn btn-graph" data-graph="resistance">Resistance</button>
+              <button class="btn btn-graph" data-graph="overview">Overview</button>
+            </div>
+
+            <!-- Full Page Graph Container -->
+            <div class="full-page-chart">
+              <div class="chart-container active" id="container-temperature">
+                <!-- <h3 class="chart-title">Temperature</h3> -->
+                <div class="chart-area-large" id="chart-temperature"></div>
+              </div>
+              <div class="chart-container" id="container-voltage">
+                <!-- <h3 class="chart-title">Voltage</h3> -->
+                <div class="chart-area-large" id="chart-voltage"></div>
+              </div>
+              <div class="chart-container" id="container-current">
+                <!-- <h3 class="chart-title">Current</h3> -->
+                <div class="chart-area-large" id="chart-current"></div>
+              </div>
+              <div class="chart-container" id="container-power">
+                <!-- <h3 class="chart-title">Power</h3> -->
+                <div class="chart-area-large" id="chart-power"></div>
+              </div>
+              <div class="chart-container" id="container-resistance">
+                <!-- <h3 class="chart-title">Resistance</h3> -->
+                <div class="chart-area-large" id="chart-resistance"></div>
+              </div>
+              <div class="chart-container" id="container-overview">
+                <!-- <h3 class="chart-title">Overview</h3> -->
+                <div class="chart-area-large" id="chart-overview"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table Panel -->
+          <div class="tab-panel" id="liveTable" role="tabpanel" aria-labelledby="Table">
+            <div class="table-wrap">
+              <table class="data-table" id="readingTable">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Temperature</th>
+                    <th>Voltage</th>
+                    <th>Current</th>
+                    <th>Power</th>
+                    <th>Resistance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- JS appends rows here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Controls Panel -->
+          <div class="tab-panel" id="controls" role="tabpanel" aria-labelledby="Controls">
+            <div class="control-grid">
+              <button class="btn btn-primary" id="modalCollect">Collect</button>
+              <button class="btn btn-warning" id="modalPause">Pause</button>
+              <button class="btn btn-neutral" id="modalContinue">Continue</button>
+              <button class="btn btn-danger" id="modalStop">Stop</button>
+            </div>
+
+            <div class="detail-meta">
+              <div class="meta-item"><span class="label">Device ID</span><span class="value" id="detailDeviceId">--</span></div>
+              <div class="meta-item"><span class="label">Circuit ID</span><span class="value" id="detailCircuitId">--</span></div>
+              <div class="meta-item"><span class="label">DB File</span><span class="value" id="detailDbFile">--</span></div>
+              <div class="meta-item"><span class="label">Collect Status</span><span class="value" id="detailCollectStatus">--</span></div>
+              <div class="meta-item"><span class="label">Run Status</span><span class="value" id="detailRunStatus">--</span></div>
+              <div class="meta-item"><span class="label">Last Updated</span><span class="value" id="detailUpdated">--</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- <footer class="modal-footer">
+        <button class="btn btn-ghost" id="modalExport">Export CSV</button>
+        <button class="btn btn-ghost" id="modalCloseBottom">Close</button>
+      </footer> -->
+    </div>
+  </div>
+
+  <!-- External JS only (no inline scripts) -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/static/js/main.js"></script>
+  <script src="/static/js/websocket.js"></script>
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
