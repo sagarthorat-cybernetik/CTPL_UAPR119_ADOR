@@ -1,0 +1,41 @@
+{
+  "demo_config": {
+    "circuits": [1, 2, 3, 4, 5, 6],
+    "data_interval_seconds": 1,
+    "simulation_duration_seconds": 0,
+    "max_records_per_db": 10000,
+    "cleanup_interval_records": 1000
+  },
+  "battery_simulation": {
+    "soc_range": [10, 95],
+    "voltage_range": [45, 67.2],
+    "current_range": [-100, 100],
+    "temperature_range": [15, 60],
+    "cycle_count_range": [100, 5000]
+  },
+  "database_settings": {
+    "output_directory": "Publish_17_10/StoredDbcs",
+    "file_naming_pattern": "2_{circuit_id}_demo-{circuit_id:08x}.db",
+    "table_name": "readings"
+  },
+  "logging": {
+    "log_level": "INFO",
+    "log_file": "logs/demo_generator.log",
+    "log_interval_records": 100
+  },
+  "signal_mappings": {
+    "main_signals": [
+      "PackVol", "PackCurr", "SOC", "SOH", 
+      "MaxTemp", "MinTemp", "Power", "Resistance"
+    ],
+    "cell_voltage_count": 18,
+    "temperature_sensor_count": 8,
+    "compatibility_aliases": {
+      "temperature": "MaxTemp",
+      "voltage": "PackVol", 
+      "current": "PackCurr",
+      "power": "Power",
+      "resistance": "Resistance"
+    }
+  }
+}

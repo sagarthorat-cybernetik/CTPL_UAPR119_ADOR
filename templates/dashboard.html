@@ -29,6 +29,10 @@
         </div>
         <h1 class="title">Ador Control Dashboard</h1>
         <div class="topbar-actions">
+            <!-- <div class="demo-controls" style="margin-right: 1rem;">
+              <button class="btn" id="startDemo" style="background: var(--accent-saffron); color: white; margin-right: 0.5rem;">Start Demo</button>
+              <button class="btn" id="stopDemo" style="background: var(--accent-red); color: white;">Stop Demo</button>
+            </div> -->
             <div class="sidebar-actions">
               <button class="btn-logout" id="adminBtn">Admin</button>
               <button class="btn-logout" id="logoutBtn">Logout</button>
@@ -156,7 +160,7 @@
               </div>
               <div class="chart-container" id="container-overview">
                 <!-- <h3 class="chart-title">Overview</h3> -->
-                <div class="chart-area-large" id="chart-overview"></div>
+                <div class="chart-area-large " id="chart-overview"></div>
               </div>
             </div>
           </div>
@@ -211,7 +215,7 @@
   </div>
 
   <!-- External JS only (no inline scripts) -->
-  <script src="/socket.io/socket.io.js"></script>
+  <script src="/static/js/socket.io.min.js"></script>
   <script src="/static/js/main.js"></script>
   <script src="/static/js/websocket.js"></script>
   <script src="/static/js/dashboard.js"></script>

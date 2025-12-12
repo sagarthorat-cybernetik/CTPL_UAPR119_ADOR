@@ -11,6 +11,9 @@ const globalCollectStatus = document.getElementById("globalCollectStatus");
 let selectedDeviceId = null;
 let circuits = [];
 let devices = [];
+let currentModalCircuit = null;
+let modalUpdateInterval = null;
+let circuitChartData = {}; // Store chart data for each circuit
 
 /* ============================================================
    1️⃣ Load Devices
@@ -54,6 +57,9 @@ async function selectDevice(deviceId) {
     name: `Circuit ${i + 1}`,
     running: false,
     collecting: false,
+    batteryId: "--", // Generate battery ID
+    startTime: null, // Will be set when collecting starts
+    lastUpdated: null,
     data: {}
   }));
 
@@ -140,8 +146,11 @@ function renderGallery() {
             <span class="badge collect ${circuit.collecting ? "started" : "stopped"}" id="collect-${circuit.deviceId}-${circuit.circuitId}">
               Collect: ${circuit.collecting ? "Started" : "Stopped"}
             </span>
-            <span class="badge">
+            <span class="badge battery-id" id="battery-id-${circuit.deviceId}-${circuit.circuitId}">
                 Battery ID: ${circuit.batteryId}
+            </span>
+            <span class="badge start-time" id="start-time-${circuit.deviceId}-${circuit.circuitId}">
+                ${circuit.startTime ? `Started: ${new Date(circuit.startTime).toLocaleTimeString()}` : 'Not Started'}
             </span>
           </div>
 
@@ -213,7 +222,7 @@ async function handleCircuitAction(e, circuit) {
   let endpoint = "";
   switch (action) {
     case "collect":
-      endpoint = "/api/DBCUpload/create-db-files";
+      endpoint = "/api/command/collect";
       break;
     case "pause":
       endpoint = "/api/command/pause";
@@ -238,9 +247,91 @@ async function handleCircuitAction(e, circuit) {
         circuitNo: circuit.circuitId,
       }),
     });
+    
     if (res) {
       const data = await res.json();
+
       console.log(`${action} response:`, data);
+      
+      // Update circuit state based on action
+      const circuitIndex = circuits.findIndex(c => c.circuitId === circuit.circuitId);
+      if (circuitIndex !== -1) {
+        switch (action) {
+          case "collect":
+            circuits[circuitIndex].collecting = true;
+            circuits[circuitIndex].running = true;
+            circuits[circuitIndex].startTime = new Date().toISOString();
+            
+            // Update UI immediately
+            const startTimeEl = document.getElementById(`start-time-${circuit.deviceId}-${circuit.circuitId}`);
+            if (startTimeEl) {
+              startTimeEl.textContent = `Started: ${new Date().toLocaleTimeString()}`;
+            }
+            
+            const collectEl = document.getElementById(`collect-${circuit.deviceId}-${circuit.circuitId}`);
+            if (collectEl) {
+              collectEl.textContent = "Collect: Started";
+              collectEl.className = "badge collect started";
+            }
+            
+            const statusEl = document.getElementById(`status-${circuit.deviceId}-${circuit.circuitId}`);
+            if (statusEl) {
+              statusEl.textContent = "Running";
+              statusEl.className = "badge status running";
+            }
+            break;
+            
+          case "stop":
+            circuits[circuitIndex].collecting = false;
+            circuits[circuitIndex].running = false;
+            circuits[circuitIndex].startTime = null;
+            
+            // Update UI immediately
+            const stopStartTimeEl = document.getElementById(`start-time-${circuit.deviceId}-${circuit.circuitId}`);
+            if (stopStartTimeEl) {
+              stopStartTimeEl.textContent = "Not Started";
+            }
+            
+            const stopCollectEl = document.getElementById(`collect-${circuit.deviceId}-${circuit.circuitId}`);
+            if (stopCollectEl) {
+              stopCollectEl.textContent = "Collect: Stopped";
+              stopCollectEl.className = "badge collect stopped";
+            }
+            
+            const stopStatusEl = document.getElementById(`status-${circuit.deviceId}-${circuit.circuitId}`);
+            if (stopStatusEl) {
+              stopStatusEl.textContent = "Stopped";
+              stopStatusEl.className = "badge status stopped";
+            }
+            break;
+            
+          case "pause":
+            circuits[circuitIndex].running = false;
+            circuits[circuitIndex].paused = true;
+
+
+            // update UI immediately
+            const pauseStatusEl = document.getElementById(`status-${circuit.deviceId}-${circuit.circuitId}`);
+            const pauseCollectEl = document.getElementById(`collect-${circuit.deviceId}-${circuit.circuitId}`);
+            if (pauseStatusEl) {
+              pauseStatusEl.textContent = "Paused";
+              pauseStatusEl.className = "badge status paused";
+            }
+            if (pauseCollectEl) {
+              pauseCollectEl.textContent = "Collect: Paused";
+              pauseCollectEl.className = "badge collect paused";
+            }
+
+            break;
+            
+          case "continue":
+            circuits[circuitIndex].running = true;
+            circuits[circuitIndex].paused = false;
+            break;
+        }
+        
+        console.log(`🔄 Updated circuit ${circuit.circuitId} state:`, circuits[circuitIndex]);
+      }
     }
   } catch (err) {
     console.error("Action error:", err);
@@ -251,24 +342,144 @@ async function handleCircuitAction(e, circuit) {
    6️⃣ Live Data Updates (from websocket.js)
    ============================================================ */
 function updateLiveCircuitData(payload) {
-  if (!payload || !payload.circuits) return;
+  // console.log("🎯 Dashboard updating with payload:", payload);
+  
+  if (!payload || !payload.circuits) {
+    console.warn("⚠️ No circuits data in payload");
+    return;
+  }
 
   payload.circuits.forEach((circuitData) => {
-    const { circuit_id, file_name, ...metrics } = circuitData;
-    const deviceId = selectedDeviceId;
+    // console.log("🔄 Processing circuit data:", circuitData);
+    
+    const circuit_id = circuitData.circuit_id || circuitData.circuitId;
+    const deviceId = selectedDeviceId || 2; // Fallback to device 2
+    
+    if (!circuit_id) {
+      console.warn("⚠️ No circuit_id found in data:", circuitData);
+      return;
+    }
 
-    // Update metrics
+    // Update the circuit in our local array
+    const circuitIndex = circuits.findIndex(c => c.circuitId == circuit_id);
+    if (circuitIndex !== -1) {
+      circuits[circuitIndex].running = true;
+      circuits[circuitIndex].collecting = true;
+      circuits[circuitIndex].lastUpdated = circuitData.timestamp || new Date().toISOString();
+      
+      // Set start time if not already set
+      if (!circuits[circuitIndex].startTime) {
+        circuits[circuitIndex].startTime = circuitData.timestamp || new Date().toISOString();
+      }
+    }
+    // console.log(circuitData);
+    
+    // Extract metrics with fallbacks
+    const metrics = {
+      temperature: circuitData.temperature || circuitData.MaxTemp || circuitData.maxtemp || '--',
+      voltage: circuitData.avgcellvol || circuitData.PackVol || circuitData.packvol || '--',
+      current: circuitData.current || circuitData.PackCurr || circuitData.packcurr || '--',
+      power: circuitData.ressocprot || circuitData.Power || '--',
+      resistance: circuitData.resstatus || circuitData.Resistance || '--'
+    };
+
+    // console.log(`📊 Circuit ${circuit_id} metrics:`, metrics);
+
+    // Update metric displays
     Object.entries(metrics).forEach(([key, value]) => {
       const el = document.getElementById(`${key}-${deviceId}-${circuit_id}`);
-      if (el) el.textContent = value.toFixed ? value.toFixed(2) : value;
+      if (el) {
+        if (value !== '--' && typeof value === 'number') {
+          // Format numbers appropriately
+          if (key === 'temperature') {
+            el.textContent = `${value.toFixed(1)}°C`;
+          } else if (key === 'voltage') {
+            el.textContent = `${value.toFixed(2)}V`;
+          } else if (key === 'current') {
+            el.textContent = `${value.toFixed(2)}A`;
+          } else if (key === 'power') {
+            el.textContent = `${value.toFixed(2)}W`;
+          } else if (key === 'resistance') {
+            el.textContent = `${value.toFixed(2)}Ω`;
+          } else {
+            el.textContent = value.toFixed ? value.toFixed(2) : value;
+          }
+        } else {
+          el.textContent = value;
+        }
+        // console.log(`✅ Updated ${key} for circuit ${circuit_id}: ${el.textContent}`);
+      } else {
+        console.warn(`⚠️ Element not found: ${key}-${deviceId}-${circuit_id}`);
+      }
     });
 
     // Update status badges
     const statusEl = document.getElementById(`status-${deviceId}-${circuit_id}`);
     const collectEl = document.getElementById(`collect-${deviceId}-${circuit_id}`);
-    if (statusEl) statusEl.textContent = "Running";
-    if (collectEl) collectEl.textContent = "Collect: Started";
+    const batteryIdEl = document.getElementById(`battery-id-${deviceId}-${circuit_id}`);
+    const startTimeEl = document.getElementById(`start-time-${deviceId}-${circuit_id}`);
+    
+    if (statusEl) {
+      // Update status text based on circuit state or data
+      let statusText = "Stopped";
+      // console.log(circuitData.status);
+      
+      if (circuitData.status) {
+        switch(circuitData.status) {
+          case 1:
+            statusText = "Rest";
+            break;
+          case 2:
+            statusText = "Charging";
+            break;
+          case 3:
+            statusText = "Discharging";
+            break;
+          case 4:
+            statusText = "Stop";
+            break;
+          case 5:
+            statusText = "Paused";
+            break;
+          default:
+            statusText = "Running";
+        }
+      } else if (circuits[circuitIndex] && circuits[circuitIndex].running) {
+        statusText = "Running";
+      }
+      statusEl.textContent = statusText;
+      statusEl.className = `badge status ${statusText.toLowerCase()}`;
+      // console.log(`✅ Updated status for circuit ${circuit_id}: Running`);
+    }
+    
+    if (collectEl) {
+      collectEl.textContent = "Collect: Started";
+      collectEl.className = "badge collect started";
+      // console.log(`✅ Updated collect status for circuit ${circuit_id}: Started`);
+    }
+
+    // Update battery ID if provided in data
+    if (batteryIdEl && circuitData.battery_id) {
+      batteryIdEl.textContent = `Battery ID: ${circuitData.battery_id}`;
+      // console.log(`✅ Updated battery ID for circuit ${circuit_id}: ${circuitData.battery_id}`);
+    }
+
+    // Update start time
+    if (startTimeEl && circuitIndex !== -1 && circuits[circuitIndex].startTime) {
+      const startTime = new Date(circuits[circuitIndex].startTime);
+      startTimeEl.textContent = `Started: ${startTime.toLocaleTimeString()}`;
+      // console.log(`✅ Updated start time for circuit ${circuit_id}: ${startTime.toLocaleTimeString()}`);
+    }
+
+    // Update last updated time in modal if open
+    const detailUpdatedEl = document.getElementById("detailUpdated");
+    if (detailUpdatedEl) {
+      detailUpdatedEl.textContent = new Date().toLocaleString();
+    }
   });
+
+  // Log summary
+  // console.log(`🎯 Dashboard update complete. Updated ${payload.circuits.length} circuits`);
 }
 
 /* ============================================================
@@ -279,27 +490,157 @@ const modalClose = document.getElementById("modalClose");
 const modalBackdrop = document.getElementById("modalBackdrop");
 
 function openCircuitModal(circuit) {
+  console.log("🔍 Opening modal for circuit:", circuit);
+  
+  // Set current modal circuit and start data fetching
+  currentModalCircuit = circuit;
+  
+  // Clear any previous chart data for this circuit to prevent contamination
+  const circuitKey = `${circuit.deviceId}-${circuit.circuitId}`;
+  circuitChartData[circuitKey] = [];
+  
   modal.setAttribute("aria-hidden", "false");
-  document.getElementById("detailDeviceId").textContent = circuit.deviceId;
-  document.getElementById("detailCircuitId").textContent = circuit.circuitId;
+  document.getElementById("detailDeviceId").textContent = circuit.deviceId || '--';
+  document.getElementById("detailCircuitId").textContent = circuit.circuitId || '--';
   document.getElementById("detailCollectStatus").textContent = circuit.collecting ? "Started" : "Stopped";
   document.getElementById("detailRunStatus").textContent = circuit.running ? "Running" : "Stopped";
   document.getElementById("detailDbFile").textContent = circuit.dbFile || "--";
+  
+  // Update last updated time
+  const detailUpdatedEl = document.getElementById("detailUpdated");
+  if (detailUpdatedEl) {
+    detailUpdatedEl.textContent = circuit.lastUpdated ? 
+      new Date(circuit.lastUpdated).toLocaleString() : 
+      'Never';
+  }
+  
+  // Add battery ID and start time if elements exist in modal
+  const detailBatteryId = document.getElementById("detailBatteryId");
+  if (detailBatteryId) {
+    detailBatteryId.textContent = circuit.batteryId || 'Unknown';
+  }
+  
+  const detailStartTime = document.getElementById("detailStartTime");
+  if (detailStartTime) {
+    detailStartTime.textContent = circuit.startTime ? 
+      new Date(circuit.startTime).toLocaleString() : 
+      'Not Started';
+  }
   
   // Initialize the default tab (Charts)
   const defaultTab = document.querySelector('.tab[data-tab="liveChart"]');
   if (defaultTab) {
     defaultTab.click();
   }
+  
+  // Start fetching circuit data and updating modal
+  startModalDataUpdates(circuit);
 }
 
 function closeModal() {
   modal.setAttribute("aria-hidden", "true");
+  
+  // Stop modal data updates
+  stopModalDataUpdates();
+  
+  // Clear current modal circuit
+  currentModalCircuit = null;
+  
+  // Clear all chart containers to prevent data contamination
+  const chartContainers = document.querySelectorAll('.chart-area-large');
+  chartContainers.forEach((container) => {
+    container.innerHTML = '';
+    delete container.dataset.initialized;
+  });
+}
+
+async function startModalDataUpdates(circuit) {
+  console.log(`🔄 Starting modal data updates for circuit ${circuit.circuitId}`);
+  
+  // Initial data fetch
+  await fetchCircuitData(circuit);
+  
+  // Start interval for updates every second
+  modalUpdateInterval = setInterval(async () => {
+    if (currentModalCircuit && currentModalCircuit.circuitId === circuit.circuitId) {
+      await fetchCircuitData(circuit);
+    }
+  }, 1000);
+}
+
+function stopModalDataUpdates() {
+  if (modalUpdateInterval) {
+    clearInterval(modalUpdateInterval);
+    modalUpdateInterval = null;
+    console.log("⏹️ Stopped modal data updates");
+  }
+}
+
+async function fetchCircuitData(circuit) {
+  try {
+    const response = await BTS.apiFetch(`${BTS.API_BASE}/api/circuit-data/${circuit.deviceId}/${circuit.circuitId}?limit=50`);
+    
+    if (!response || !response.ok) {
+      console.warn(`⚠️ Failed to fetch data for circuit ${circuit.circuitId}`);
+      return;
+    }
+    
+    const data = await response.json();
+    
+    if (data.error) {
+      console.warn(`⚠️ Error fetching circuit data: ${data.error}`);
+      return;
+    }
+    
+    // Store chart data for this circuit
+    const circuitKey = `${circuit.deviceId}-${circuit.circuitId}`;
+    circuitChartData[circuitKey] = data.data;
+    
+    // Update modal with latest data
+    updateModalContent(circuit, data);
+    
+  } catch (error) {
+    console.error(`❌ Error fetching circuit data:`, error);
+  }
 }
 
 if (modalClose) modalClose.addEventListener("click", closeModal);
 if (modalBackdrop) modalBackdrop.addEventListener("click", closeModal);
 document.getElementById("modalCloseBottom")?.addEventListener("click", closeModal);
+
+function updateModalContent(circuit, circuitData) {
+  if (!currentModalCircuit || currentModalCircuit.circuitId !== circuit.circuitId) {
+    return; // Modal closed or different circuit
+  }
+  
+  const data = circuitData.data;
+  if (!data || data.length === 0) {
+    return;
+  }
+  
+  // Get latest data point
+  const latestData = data[data.length - 1];
+  
+  // Update last updated time
+  const detailUpdatedEl = document.getElementById("detailUpdated");
+  if (detailUpdatedEl) {
+    detailUpdatedEl.textContent = new Date().toLocaleString();
+  }
+  
+  // Update charts if charts tab is active
+  const chartsTab = document.getElementById("liveChart");
+  if (chartsTab && chartsTab.classList.contains("active")) {
+    updateModalCharts(circuit, data);
+  }
+  
+  // Update data table if table tab is active
+  const tableTab = document.getElementById("liveTable");
+  if (tableTab && tableTab.classList.contains("active")) {
+    updateModalDataTable(circuit, data);
+  }
+  
+  // console.log(`📊 Updated modal content for circuit ${circuit.circuitId} with ${data.length} records`);
+}
 
 /* ============================================================
    🔄 Tab Functionality for Modal
@@ -360,62 +701,396 @@ function initializeCharts() {
   // Initialize or refresh charts when the Charts tab is activated
   console.log("Initializing charts...");
   
-  // You can add chart library initialization here
-  // Example: Chart.js, D3.js, or any other charting library
-  
-  // For now, we'll add placeholder functionality
-  const chartContainers = document.querySelectorAll('.chart-area');
-  chartContainers.forEach((container, index) => {
-    if (!container.dataset.initialized) {
-      container.innerHTML = `
-        <div style="
-          height: 150px; 
-          background: var(--bg-secondary); 
-          border: 2px solid var(--border-color); 
-          border-radius: var(--radius);
-          display: flex; 
-          align-items: center; 
-          justify-content: center;
-          color: var(--text-secondary);
-          font-weight: 600;
-        ">
-          📈 Chart ${index + 1} - Live Data Visualization
-        </div>
-      `;
+  if (currentModalCircuit) {
+    const circuitKey = `${currentModalCircuit.deviceId}-${currentModalCircuit.circuitId}`;
+    const data = circuitChartData[circuitKey] || [];
+    updateModalCharts(currentModalCircuit, data);
+  } else {
+    // Show completely empty charts without any placeholder text
+    const chartContainers = document.querySelectorAll('.chart-area-large');
+    chartContainers.forEach((container, index) => {
+      container.innerHTML = '';
       container.dataset.initialized = 'true';
+    });
+  }
+}
+
+function updateModalCharts(circuit, data) {
+  if (!data || data.length === 0) {
+    // Clear all charts and show "No Data Available" for this specific circuit
+    const chartConfigs = {
+      temperature: { containerId: 'chart-temperature', title: 'Temperature (°C)' },
+      voltage: { containerId: 'chart-voltage', title: 'Voltage (V)' },
+      current: { containerId: 'chart-current', title: 'Current (A)' },
+      power: { containerId: 'chart-power', title: 'Power (W)' },
+      resistance: { containerId: 'chart-resistance', title: 'Resistance (Ω)' }
+    };
+    
+    Object.entries(chartConfigs).forEach(([chartType, config]) => {
+      const container = document.getElementById(config.containerId);
+      if (container) {
+        container.innerHTML = '';
+      }
+    });
+    
+    // Also clear overview chart
+    updateOverviewChart([], []);
+    return;
+  }
+  
+  // Extract time series data
+  const timestamps = data.map(d => {
+    try {
+      return new Date(d.timestamp || d.time).toLocaleTimeString();
+    } catch {
+      return new Date().toLocaleTimeString();
     }
   });
+  
+  // Chart configurations
+  const chartConfigs = {
+    temperature: {
+      containerId: 'chart-temperature',
+      title: 'Temperature (°C)',
+      dataKey: ['temperature', 'MaxTemp', 'maxtemp'],
+      color: '#ff6b6b',
+      unit: '°C'
+    },
+    voltage: {
+      containerId: 'chart-voltage', 
+      title: 'Voltage (V)',
+      dataKey: ['voltage', 'PackVol', 'packvol', 'avgcellvol'],
+      color: '#4ecdc4',
+      unit: 'V'
+    },
+    current: {
+      containerId: 'chart-current',
+      title: 'Current (A)',
+      dataKey: ['current', 'PackCurr', 'packcurr'],
+      color: '#45b7d1',
+      unit: 'A'
+    },
+    power: {
+      containerId: 'chart-power',
+      title: 'Power (W)',
+      dataKey: ['power', 'Power', 'ressocprot'],
+      color: '#96ceb4',
+      unit: 'W'
+    },
+    resistance: {
+      containerId: 'chart-resistance',
+      title: 'Resistance (Ω)',
+      dataKey: ['resistance', 'Resistance', 'resstatus'],
+      color: '#feca57',
+      unit: 'Ω'
+    }
+  };
+  
+  // Update each chart
+  Object.entries(chartConfigs).forEach(([chartType, config]) => {
+    updateSingleChart(config, data, timestamps);
+  });
+  
+  // Update overview chart with all metrics
+  updateOverviewChart(data, timestamps);
+}
+
+function updateSingleChart(config, data, timestamps) {
+  const container = document.getElementById(config.containerId);
+  if (!container) return;
+  
+  // Extract values for this metric
+  const values = data.map(d => {
+    for (let key of config.dataKey) {
+      if (d[key] !== undefined && d[key] !== null) {
+        return parseFloat(d[key]) || 0;
+      }
+    }
+    return 0;
+  });
+  
+  // Create simple line chart using Canvas
+  const canvasId = `canvas-${config.containerId}`;
+  let canvas = document.getElementById(canvasId);
+  
+  if (!canvas) {
+    canvas = document.createElement('canvas');
+    canvas.id = canvasId;
+    canvas.width = 800;
+    canvas.height = 300;
+    canvas.style.width = '100%';
+    canvas.style.height = '300px';
+    container.innerHTML = '';
+    container.appendChild(canvas);
+  }
+  
+  const ctx = canvas.getContext('2d');
+  
+  // Clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  if (values.length === 0) {
+    // Just return without showing any message
+    return;
+  }
+  
+  // Chart margins
+  const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+  const chartWidth = canvas.width - margin.left - margin.right;
+  const chartHeight = canvas.height - margin.top - margin.bottom;
+  
+  // Find min/max values
+  const minVal = Math.min(...values);
+  const maxVal = Math.max(...values);
+  const range = maxVal - minVal || 1;
+  
+  // Draw background
+  ctx.fillStyle = '#f8f9fa';
+  ctx.fillRect(margin.left, margin.top, chartWidth, chartHeight);
+  
+  // Draw grid lines
+  ctx.strokeStyle = '#e9ecef';
+  ctx.lineWidth = 1;
+  
+  // Horizontal grid lines
+  for (let i = 0; i <= 5; i++) {
+    const y = margin.top + (chartHeight / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(margin.left, y);
+    ctx.lineTo(margin.left + chartWidth, y);
+    ctx.stroke();
+    
+    // Y-axis labels
+    const value = maxVal - (range / 5) * i;
+    ctx.fillStyle = '#666';
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'right';
+    ctx.fillText(value.toFixed(1) + config.unit, margin.left - 10, y + 4);
+  }
+  
+  // Vertical grid lines
+  const timeStep = Math.max(1, Math.floor(values.length / 10));
+  for (let i = 0; i < values.length; i += timeStep) {
+    const x = margin.left + (chartWidth / (values.length - 1)) * i;
+    ctx.beginPath();
+    ctx.moveTo(x, margin.top);
+    ctx.lineTo(x, margin.top + chartHeight);
+    ctx.stroke();
+  }
+  
+  // Draw data line
+  ctx.strokeStyle = config.color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  
+  for (let i = 0; i < values.length; i++) {
+    const x = margin.left + (chartWidth / (values.length - 1)) * i;
+    const y = margin.top + chartHeight - ((values[i] - minVal) / range) * chartHeight;
+    
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  }
+  ctx.stroke();
+  
+  // Draw data points
+  ctx.fillStyle = config.color;
+  for (let i = 0; i < values.length; i++) {
+    const x = margin.left + (chartWidth / (values.length - 1)) * i;
+    const y = margin.top + chartHeight - ((values[i] - minVal) / range) * chartHeight;
+    
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  
+  // Draw title
+  ctx.fillStyle = '#333';
+  ctx.font = 'bold 16px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(config.title, canvas.width / 2, 20);
+  
+  // Draw X-axis labels (timestamps)
+  ctx.fillStyle = '#666';
+  ctx.font = '10px Arial';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < timestamps.length; i += timeStep) {
+    const x = margin.left + (chartWidth / (values.length - 1)) * i;
+    ctx.save();
+    ctx.translate(x, canvas.height - 10);
+    ctx.rotate(-Math.PI / 4);
+    ctx.fillText(timestamps[i], 0, 0);
+    ctx.restore();
+  }
+}
+
+function updateOverviewChart(data, timestamps) {
+  const container = document.getElementById('chart-overview');
+  if (!container) return;
+  
+  if (data.length === 0) {
+    // Clear the overview chart completely when no data
+    container.innerHTML = '';
+    return;
+  }
+  
+  container.innerHTML = `
+    <div class="chart-overview" >
+      <h3 style="margin: 0 0 20px 0;">Overview - Latest Values</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        ${(() => {
+          const latest = data[data.length - 1];
+          console.log(latest);
+          
+          return `
+            <div class="metric-card">
+              <div class="metric-label">Temperature</div>
+              <div class="metric-value">${(() => {
+                const temp = latest.temperature || latest.MaxTemp;
+                return temp ? parseFloat(temp).toFixed(4) : '--';
+              })()} °C</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Voltage</div>
+              <div class="metric-value">${(() => {
+                const volt = latest.voltage || latest.PackVol || latest.avgcellvol;
+                return volt ? parseFloat(volt).toFixed(4) : '--';
+              })()} V</div>
+            </div>
+            
+            <div class="metric-card">
+              <div class="metric-label">Current</div>
+              <div class="metric-value">${(() => {
+                const curr = latest.current || latest.PackCurr;
+                return curr ? parseFloat(curr).toFixed(4) : '--';
+              })()} A</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Power</div>
+              <div class="metric-value">${(() => {
+                const power = latest.ResSocProt || latest.ressocprot;
+                return power ? parseFloat(power).toFixed(4) : '--';
+              })()} W</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Resistance</div>
+              <div class="metric-value">${(() => {
+                const resistance = latest.ResStatus || latest.resstatus;
+                return resistance ? parseFloat(resistance).toFixed(4) : '--';
+              })()} Ω</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Timestamp</div>
+              <div class="metric-value">${new Date(latest.timestamp || Date.now()).toLocaleString()}</div>
+            </div>
+          `;
+        })()}
+      </div>
+    </div>
+  `;
 }
 
 function updateDataTable() {
   // Update data table when the Table tab is activated
   console.log("Updating data table...");
   
-  const tableBody = document.querySelector('#readingTable tbody');
-  if (tableBody) {
-    // Clear existing data
-    tableBody.innerHTML = '';
-    
-    // Add sample data rows (replace with real data)
-    const sampleData = [
-      { timestamp: new Date().toLocaleString(), temperature: '25.4°C', voltage: '12.5V', current: '2.1A', power: '26.25W', resistance: '5.95Ω' },
-      { timestamp: new Date(Date.now() - 60000).toLocaleString(), temperature: '25.2°C', voltage: '12.4V', current: '2.0A', power: '24.8W', resistance: '6.2Ω' },
-      { timestamp: new Date(Date.now() - 120000).toLocaleString(), temperature: '25.1°C', voltage: '12.3V', current: '1.9A', power: '23.37W', resistance: '6.47Ω' }
-    ];
-    
-    sampleData.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${row.timestamp}</td>
-        <td>${row.temperature}</td>
-        <td>${row.voltage}</td>
-        <td>${row.current}</td>
-        <td>${row.power}</td>
-        <td>${row.resistance}</td>
-      `;
-      tableBody.appendChild(tr);
-    });
+  if (currentModalCircuit) {
+    const circuitKey = `${currentModalCircuit.deviceId}-${currentModalCircuit.circuitId}`;
+    const data = circuitChartData[circuitKey] || [];
+    updateModalDataTable(currentModalCircuit, data);
+  } else {
+    // Show placeholder data
+    updateModalDataTablePlaceholder();
   }
+}
+
+function updateModalDataTable(circuit, data) {
+  const tableBody = document.querySelector('#readingTable tbody');
+  if (!tableBody) return;
+  
+  // Clear existing data
+  tableBody.innerHTML = '';
+  
+  if (!data || data.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="6" style="text-align: center; padding: 20px;">No data available</td>';
+    tableBody.appendChild(tr);
+    return;
+  }
+  
+  // Show latest 20 records, reverse order (newest first)
+  const recentData = data.slice(-20).reverse();
+  
+  recentData.forEach(row => {
+    const tr = document.createElement('tr');
+    
+    // Format timestamp
+    const timestamp = row.timestamp ? 
+      new Date(row.timestamp).toLocaleString() : 
+      '--';
+    
+    // Extract values with fallbacks
+    const temperature = formatValue(row.temperature || row.MaxTemp || row.maxtemp, '°C');
+    const voltage = formatValue(row.voltage || row.PackVol || row.packvol || row.avgcellvol, 'V');
+    const current = formatValue(row.current || row.PackCurr || row.packcurr, 'A');
+    const power = formatValue(row.power || row.Power || row.ressocprot, 'W');
+    const resistance = formatValue(row.resistance || row.Resistance || row.resstatus, 'Ω');
+    
+    tr.innerHTML = `
+      <td>${timestamp}</td>
+      <td>${temperature}</td>
+      <td>${voltage}</td>
+      <td>${current}</td>
+      <td>${power}</td>
+      <td>${resistance}</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+  
+  console.log(`📊 Updated data table with ${recentData.length} records`);
+}
+
+function updateModalDataTablePlaceholder() {
+  const tableBody = document.querySelector('#readingTable tbody');
+  if (!tableBody) return;
+  
+  // Clear existing data
+  tableBody.innerHTML = '';
+  
+  // Add sample data rows
+  const sampleData = [
+    { timestamp: new Date().toLocaleString(), temperature: '25.4°C', voltage: '12.5V', current: '2.1A', power: '26.25W', resistance: '5.95Ω' },
+    { timestamp: new Date(Date.now() - 60000).toLocaleString(), temperature: '25.2°C', voltage: '12.4V', current: '2.0A', power: '24.8W', resistance: '6.2Ω' },
+    { timestamp: new Date(Date.now() - 120000).toLocaleString(), temperature: '25.1°C', voltage: '12.3V', current: '1.9A', power: '23.37W', resistance: '6.47Ω' }
+  ];
+  
+  sampleData.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${row.timestamp}</td>
+      <td>${row.temperature}</td>
+      <td>${row.voltage}</td>
+      <td>${row.current}</td>
+      <td>${row.power}</td>
+      <td>${row.resistance}</td>
+    `;
+    tableBody.appendChild(tr);
+  });
+}
+
+function formatValue(value, unit) {
+  if (value === undefined || value === null || value === '') {
+    return '--';
+  }
+  
+  const numValue = parseFloat(value);
+  if (isNaN(numValue)) {
+    return '--';
+  }
+  
+  return `${numValue.toFixed(2)}${unit}`;
 }
 
 function updateControlsPanel() {
@@ -531,4 +1206,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Refresh button
   const refreshBtn = document.getElementById("refreshDevices");
   if (refreshBtn) refreshBtn.addEventListener("click", loadDevices);
+  
+  // Demo controls
+  const startDemoBtn = document.getElementById("startDemo");
+  const stopDemoBtn = document.getElementById("stopDemo");
+  
+  if (startDemoBtn) {
+    startDemoBtn.addEventListener("click", async () => {
+      try {
+        const response = await BTS.apiFetch(`${BTS.API_BASE}/api/demo/start`, {
+          method: "POST",
+          headers: BTS.getAuthHeaders(),
+          body: JSON.stringify({ circuits: [1, 2, 3, 4, 5] })
+        });
+        
+        if (response && response.ok) {
+          const data = await response.json();
+          console.log("✅ Demo started:", data);
+          alert(`Demo started for circuits: ${data.circuits.join(", ")}`);
+        }
+      } catch (error) {
+        console.error("❌ Error starting demo:", error);
+        alert("Failed to start demo");
+      }
+    });
+  }
+  
+  if (stopDemoBtn) {
+    stopDemoBtn.addEventListener("click", async () => {
+      try {
+        const response = await BTS.apiFetch(`${BTS.API_BASE}/api/demo/stop`, {
+          method: "POST",
+          headers: BTS.getAuthHeaders()
+        });
+        
+        if (response && response.ok) {
+          const data = await response.json();
+          console.log("⏹️ Demo stopped:", data);
+          alert("Demo stopped");
+        }
+      } catch (error) {
+        console.error("❌ Error stopping demo:", error);
+        alert("Failed to stop demo");
+      }
+    });
+  }
 });

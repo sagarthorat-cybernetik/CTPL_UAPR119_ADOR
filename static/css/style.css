@@ -331,14 +331,6 @@ button, input, select {
   color: var(--text-primary);
 }
 
-.sidebar-actions {
-  /* margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding-top: 1rem;
-  border-top: 2px solid var(--border-color); */
-}
 
 /* Topbar */
 .topbar {
@@ -587,6 +579,7 @@ width: 80%;
   letter-spacing: 0.5px;
   margin: 0;
   flex: 1;
+  text-align: center;
 }
 
 .badges {
@@ -602,27 +595,64 @@ width: 80%;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   border: 1px solid transparent;
+  width: 70%;
+  text-align: center;
 }
 .badge.status.running { 
   background: var(--accent-saffron); 
   color: #000; 
   border-color: #ffc933;
+  
 }
 .badge.status.paused { 
   background: var(--text-secondary); 
   color: #fff; 
   border-color: #888;
 }
+.badge.status.stop { 
+  background: var(--accent-red); 
+  color: #fff; 
+  border-color: #ff5757;
+}
+
 .badge.status.stopped { 
   background: var(--accent-red); 
   color: #fff; 
   border-color: #ff5757;
 }
+.badge.status.rest{
+  background: yellow; 
+  color: #000; 
+  border-color: yellow;
+}
+.badge.status.charging{
+  background: green; 
+  color: #fff; 
+  border-color: #ffc933;
+}
+.badge.status.discharging{
+  background: blue; 
+  color: #fff; 
+  border-color: #ff5757;
+}
+
 .badge.collect.started { 
   background: var(--bg-primary); 
   color: var(--text-primary); 
   border-color: var(--border-color);
 }
+
+/* .badge.collect.stopped { 
+  background: var(--accent-red); 
+  color: #fff; 
+  border-color: #ff5757;
+}
+
+.badge.collect.paused { 
+  background: #fd7e14; 
+  color: #fff; 
+  border-color: #fd7e14;
+} */
 
 .metrics {
   /* display: grid; */
@@ -631,7 +661,7 @@ width: 80%;
   margin: 0.5rem 0;
 }
 .metric {
-    background: var(--bg-primary); 
+    /* background: var(--bg-primary);  */
     /* border: 2px solid var(--border-color); */
     /* border-radius: var(--radius); */
     /* padding: 0.4rem 0.6rem; */
@@ -865,10 +895,7 @@ width: 80%;
   overflow-y: auto;
 }
 
-.admin-container {
-  /* max-width: 1000px;
-  margin: auto; */
-}
+
 
 .admin-main {
   display: flex;
@@ -1135,7 +1162,6 @@ width: 80%;
 }
 
 .chart-area-large::before {
-  content: "📊 Chart Loading...";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -1146,7 +1172,14 @@ width: 80%;
   text-align: center;
   z-index: 1;
 }
+.chart-overview{
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
 
+}
 /* Animation for smooth transitions */
 .chart-container {
   opacity: 0;
@@ -1185,4 +1218,33 @@ width: 80%;
   .chart-area-large {
     min-height: 250px;
   }
+}
+
+/* --- Metric Cards for Overview Chart --- */
+.metric-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 15px;
+  text-align: center;
+  box-shadow: var(--shadow-light);
+  transition: var(--transition);
+}
+
+.metric-card:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+.metric-card .metric-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.metric-card .metric-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
 }
