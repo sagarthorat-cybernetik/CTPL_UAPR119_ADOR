@@ -1,0 +1,425 @@
+2025-12-19 09:08:44,012 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:08:44,025 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:08:44,085 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.6.168:5001
+2025-12-19 09:08:44,085 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-19 09:08:44,085 - INFO -  * Restarting with stat
+2025-12-19 09:08:44,713 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:08:44,721 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:08:44,728 - WARNING -  * Debugger is active!
+2025-12-19 09:08:44,739 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:09:08,537 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:08] "GET / HTTP/1.1" 200 -
+2025-12-19 09:09:08,734 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:08] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-12-19 09:09:08,846 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:08] "GET /static/img/light_cylogo.png HTTP/1.1" 200 -
+2025-12-19 09:09:08,883 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:08] "GET /static/img/logo.svg HTTP/1.1" 200 -
+2025-12-19 09:09:08,886 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:08] "GET /static/js/main.js HTTP/1.1" 200 -
+2025-12-19 09:09:09,224 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:09] "GET /static/img/logo.png HTTP/1.1" 200 -
+2025-12-19 09:09:14,589 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:14] "POST /login HTTP/1.1" 200 -
+2025-12-19 09:09:15,961 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:15] "GET /dashboard HTTP/1.1" 200 -
+2025-12-19 09:09:15,979 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:15] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-12-19 09:09:16,203 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "GET /static/img/cylogo.png HTTP/1.1" 200 -
+2025-12-19 09:09:16,309 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "[36mGET /static/img/logo.svg HTTP/1.1[0m" 304 -
+2025-12-19 09:09:16,317 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+2025-12-19 09:09:16,320 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "GET /static/js/websocket.js HTTP/1.1" 200 -
+2025-12-19 09:09:16,335 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "GET /static/js/dashboard.js HTTP/1.1" 200 -
+2025-12-19 09:09:16,344 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "GET /static/js/socket.io.min.js HTTP/1.1" 200 -
+2025-12-19 09:09:16,361 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "GET /socket.io/?EIO=4&transport=polling&t=PiqiBm3 HTTP/1.1" 200 -
+2025-12-19 09:09:16,370 - INFO - WebSocket client connected.
+2025-12-19 09:09:16,371 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "POST /socket.io/?EIO=4&transport=polling&t=PiqiBmC&sid=B24qN4bC2xEfOTfqAAAA HTTP/1.1" 200 -
+2025-12-19 09:09:16,378 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "GET /socket.io/?EIO=4&transport=polling&t=PiqiBmD&sid=B24qN4bC2xEfOTfqAAAA HTTP/1.1" 200 -
+2025-12-19 09:09:16,662 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:16] "GET /api/devices HTTP/1.1" 200 -
+2025-12-19 09:09:28,145 - ERROR - Error starting monitoring via BTSAPI: HTTPConnectionPool(host='localhost', port=5000): Max retries exceeded with url: /api/DBCUpload/create-db-files (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x00000278B8AE7A10>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it'))
+2025-12-19 09:09:28,146 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:28] "[35m[1mPOST /api/command/collect HTTP/1.1[0m" 500 -
+2025-12-19 09:09:30,814 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:30] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-12-19 09:09:30,827 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:30] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-12-19 09:09:30,829 - INFO - 127.0.0.1 - - [19/Dec/2025 09:09:30] "[33mGET /static/js/socket.io.min.js.map HTTP/1.1[0m" 404 -
+2025-12-19 09:10:26,942 - INFO - Monitoring started for [{'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}]
+2025-12-19 09:10:26,942 - INFO - 127.0.0.1 - - [19/Dec/2025 09:10:26] "POST /api/command/collect HTTP/1.1" 200 -
+2025-12-19 09:10:27,789 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:27,790 - WARNING - No circuit data available
+2025-12-19 09:10:28,773 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:28,773 - WARNING - No circuit data available
+2025-12-19 09:10:29,773 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:29,774 - WARNING - No circuit data available
+2025-12-19 09:10:30,773 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:30,774 - WARNING - No circuit data available
+2025-12-19 09:10:31,774 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:31,774 - WARNING - No circuit data available
+2025-12-19 09:10:32,777 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:32,778 - WARNING - No circuit data available
+2025-12-19 09:10:33,777 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:33,778 - WARNING - No circuit data available
+2025-12-19 09:10:34,777 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:34,778 - WARNING - No circuit data available
+2025-12-19 09:10:35,776 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:35,776 - WARNING - No circuit data available
+2025-12-19 09:10:36,775 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:36,775 - WARNING - No circuit data available
+2025-12-19 09:10:37,775 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:37,776 - WARNING - No circuit data available
+2025-12-19 09:10:38,777 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:38,778 - WARNING - No circuit data available
+2025-12-19 09:10:39,778 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:39,779 - WARNING - No circuit data available
+2025-12-19 09:10:40,778 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:40,778 - WARNING - No circuit data available
+2025-12-19 09:10:41,785 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:41,786 - WARNING - No circuit data available
+2025-12-19 09:10:42,779 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:42,779 - WARNING - No circuit data available
+2025-12-19 09:10:43,779 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:43,780 - WARNING - No circuit data available
+2025-12-19 09:10:44,779 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:44,780 - WARNING - No circuit data available
+2025-12-19 09:10:45,780 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:45,781 - WARNING - No circuit data available
+2025-12-19 09:10:46,781 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:46,782 - WARNING - No circuit data available
+2025-12-19 09:10:47,781 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:47,782 - WARNING - No circuit data available
+2025-12-19 09:10:48,781 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:48,782 - WARNING - No circuit data available
+2025-12-19 09:10:49,782 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:49,782 - WARNING - No circuit data available
+2025-12-19 09:10:50,783 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:50,784 - WARNING - No circuit data available
+2025-12-19 09:10:51,783 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:51,784 - WARNING - No circuit data available
+2025-12-19 09:10:52,784 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:52,784 - WARNING - No circuit data available
+2025-12-19 09:10:53,785 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:53,785 - WARNING - No circuit data available
+2025-12-19 09:10:54,785 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:54,786 - WARNING - No circuit data available
+2025-12-19 09:10:55,785 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:55,786 - WARNING - No circuit data available
+2025-12-19 09:10:56,785 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:56,785 - WARNING - No circuit data available
+2025-12-19 09:10:57,786 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:57,787 - WARNING - No circuit data available
+2025-12-19 09:10:58,787 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:40:26.941954+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091024.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091024.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:10:58,788 - WARNING - No circuit data available
+2025-12-19 09:10:59,635 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:10:59,708 - INFO -  * Restarting with stat
+2025-12-19 09:11:00,270 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:00,281 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:00,289 - WARNING -  * Debugger is active!
+2025-12-19 09:11:00,298 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:01,205 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:01] "GET /socket.io/?EIO=4&transport=polling&t=PiqibMB HTTP/1.1" 200 -
+2025-12-19 09:11:01,218 - INFO - WebSocket client connected.
+2025-12-19 09:11:01,219 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:01] "POST /socket.io/?EIO=4&transport=polling&t=PiqibMP&sid=js4VK8f-xT6b8Bv7AAAA HTTP/1.1" 200 -
+2025-12-19 09:11:01,227 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:01] "GET /socket.io/?EIO=4&transport=polling&t=PiqibMR&sid=js4VK8f-xT6b8Bv7AAAA HTTP/1.1" 200 -
+2025-12-19 09:11:02,361 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:11:02,434 - INFO -  * Restarting with stat
+2025-12-19 09:11:02,951 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:02,958 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:02,962 - WARNING -  * Debugger is active!
+2025-12-19 09:11:02,970 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:03,335 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:03] "GET /socket.io/?EIO=4&transport=polling&t=PiqibtW HTTP/1.1" 200 -
+2025-12-19 09:11:03,342 - INFO - WebSocket client connected.
+2025-12-19 09:11:03,343 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:03] "POST /socket.io/?EIO=4&transport=polling&t=Piqibtf&sid=4tWJDVLBoGaAJ3uTAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:03,347 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:03] "GET /socket.io/?EIO=4&transport=polling&t=Piqibtg&sid=4tWJDVLBoGaAJ3uTAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:08,080 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:11:08,168 - INFO -  * Restarting with stat
+2025-12-19 09:11:08,743 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:08,750 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:08,754 - WARNING -  * Debugger is active!
+2025-12-19 09:11:08,760 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:09,266 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:09] "GET /socket.io/?EIO=4&transport=polling&t=PiqidKD HTTP/1.1" 200 -
+2025-12-19 09:11:09,273 - INFO - WebSocket client connected.
+2025-12-19 09:11:09,273 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:09] "POST /socket.io/?EIO=4&transport=polling&t=PiqidKL&sid=qozzcTdpZlr_hmmDAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:09,276 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:09] "GET /socket.io/?EIO=4&transport=polling&t=PiqidKM&sid=qozzcTdpZlr_hmmDAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:10,820 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:11:10,892 - INFO -  * Restarting with stat
+2025-12-19 09:11:11,409 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:11,418 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:11,422 - WARNING -  * Debugger is active!
+2025-12-19 09:11:11,428 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:11,668 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:11] "GET /socket.io/?EIO=4&transport=polling&t=Piqidvk HTTP/1.1" 200 -
+2025-12-19 09:11:11,673 - INFO - WebSocket client connected.
+2025-12-19 09:11:11,674 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:11] "POST /socket.io/?EIO=4&transport=polling&t=Piqidvs&sid=Fv6glfUWi5sqwatdAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:11,681 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:11] "GET /socket.io/?EIO=4&transport=polling&t=Piqidvt&sid=Fv6glfUWi5sqwatdAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:14,513 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:11:14,563 - INFO -  * Restarting with stat
+2025-12-19 09:11:14,977 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:14,982 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:14,986 - WARNING -  * Debugger is active!
+2025-12-19 09:11:14,992 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:15,934 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:15] "GET /socket.io/?EIO=4&transport=polling&t=PiqieyN HTTP/1.1" 200 -
+2025-12-19 09:11:15,942 - INFO - WebSocket client connected.
+2025-12-19 09:11:15,944 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:15] "POST /socket.io/?EIO=4&transport=polling&t=PiqieyX&sid=np5fghLecXufqjjPAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:15,948 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:15] "GET /socket.io/?EIO=4&transport=polling&t=PiqieyZ&sid=np5fghLecXufqjjPAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:26,214 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:11:26,260 - INFO -  * Restarting with stat
+2025-12-19 09:11:26,724 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:26,731 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:26,734 - WARNING -  * Debugger is active!
+2025-12-19 09:11:26,740 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:26,962 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:26] "GET /socket.io/?EIO=4&transport=polling&t=Piqihei HTTP/1.1" 200 -
+2025-12-19 09:11:26,969 - INFO - WebSocket client connected.
+2025-12-19 09:11:26,970 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:26] "POST /socket.io/?EIO=4&transport=polling&t=Piqiher&sid=b1TGpUxGPVrKeYv5AAAA HTTP/1.1" 200 -
+2025-12-19 09:11:26,974 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:26] "GET /socket.io/?EIO=4&transport=polling&t=Piqihes&sid=b1TGpUxGPVrKeYv5AAAA HTTP/1.1" 200 -
+2025-12-19 09:11:29,803 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:11:29,893 - INFO -  * Restarting with stat
+2025-12-19 09:11:30,328 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:30,334 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:30,337 - WARNING -  * Debugger is active!
+2025-12-19 09:11:30,345 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:31,081 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:31] "GET /socket.io/?EIO=4&transport=polling&t=Piqiif2 HTTP/1.1" 200 -
+2025-12-19 09:11:31,091 - INFO - WebSocket client connected.
+2025-12-19 09:11:31,091 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:31] "POST /socket.io/?EIO=4&transport=polling&t=PiqiifC&sid=zkEuoL7-RA1LRXi-AAAA HTTP/1.1" 200 -
+2025-12-19 09:11:31,096 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:31] "GET /socket.io/?EIO=4&transport=polling&t=PiqiifD&sid=zkEuoL7-RA1LRXi-AAAA HTTP/1.1" 200 -
+2025-12-19 09:11:32,405 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:11:32,465 - INFO -  * Restarting with stat
+2025-12-19 09:11:32,892 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:32,897 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:32,901 - WARNING -  * Debugger is active!
+2025-12-19 09:11:32,908 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:33,461 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:33] "GET /socket.io/?EIO=4&transport=polling&t=PiqijEF HTTP/1.1" 200 -
+2025-12-19 09:11:33,467 - INFO - WebSocket client connected.
+2025-12-19 09:11:33,467 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:33] "POST /socket.io/?EIO=4&transport=polling&t=PiqijEM&sid=R-LU1TmxVSoKIZ_7AAAA HTTP/1.1" 200 -
+2025-12-19 09:11:33,471 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:33] "GET /socket.io/?EIO=4&transport=polling&t=PiqijEN&sid=R-LU1TmxVSoKIZ_7AAAA HTTP/1.1" 200 -
+2025-12-19 09:11:35,977 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:11:36,038 - INFO -  * Restarting with stat
+2025-12-19 09:11:36,422 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:36,427 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:36,431 - WARNING -  * Debugger is active!
+2025-12-19 09:11:36,437 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:38,179 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:38,184 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:38,202 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.6.168:5001
+2025-12-19 09:11:38,202 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-19 09:11:38,202 - INFO -  * Restarting with stat
+2025-12-19 09:11:38,680 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:11:38,687 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:11:38,691 - WARNING -  * Debugger is active!
+2025-12-19 09:11:38,697 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:11:38,724 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:38] "GET /socket.io/?EIO=4&transport=polling&t=Piqik7G HTTP/1.1" 200 -
+2025-12-19 09:11:38,729 - INFO - WebSocket client connected.
+2025-12-19 09:11:38,729 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:38] "POST /socket.io/?EIO=4&transport=polling&t=PiqikWc&sid=V6QvGA48MMra3fRyAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:38,734 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:38] "GET /socket.io/?EIO=4&transport=polling&t=PiqikWd&sid=V6QvGA48MMra3fRyAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:41,097 - INFO - WebSocket client disconnected.
+2025-12-19 09:11:41,099 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /socket.io/?EIO=4&transport=websocket&sid=V6QvGA48MMra3fRyAAAA HTTP/1.1" 200 -
+2025-12-19 09:11:41,418 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /dashboard HTTP/1.1" 200 -
+2025-12-19 09:11:41,575 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-12-19 09:11:41,664 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /static/js/socket.io.min.js HTTP/1.1" 200 -
+2025-12-19 09:11:41,758 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /static/js/main.js HTTP/1.1" 200 -
+2025-12-19 09:11:41,759 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /static/img/logo.svg HTTP/1.1" 200 -
+2025-12-19 09:11:41,760 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /static/img/cylogo.png HTTP/1.1" 200 -
+2025-12-19 09:11:41,761 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /static/js/websocket.js HTTP/1.1" 200 -
+2025-12-19 09:11:41,886 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /static/js/dashboard.js HTTP/1.1" 200 -
+2025-12-19 09:11:41,900 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /socket.io/?EIO=4&transport=polling&t=PiqilI7 HTTP/1.1" 200 -
+2025-12-19 09:11:41,912 - INFO - WebSocket client connected.
+2025-12-19 09:11:41,913 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "POST /socket.io/?EIO=4&transport=polling&t=PiqilII&sid=muKXMwE6K4WddVSTAAAC HTTP/1.1" 200 -
+2025-12-19 09:11:41,922 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /socket.io/?EIO=4&transport=polling&t=PiqilIK&sid=muKXMwE6K4WddVSTAAAC HTTP/1.1" 200 -
+2025-12-19 09:11:41,971 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:41] "GET /api/devices HTTP/1.1" 200 -
+2025-12-19 09:11:42,074 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:42] "GET /static/img/logo.png HTTP/1.1" 200 -
+2025-12-19 09:11:42,204 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:42] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-12-19 09:11:42,208 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:42] "[33mGET /static/js/socket.io.min.js.map HTTP/1.1[0m" 404 -
+2025-12-19 09:11:44,639 - INFO - Monitoring started for [{'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}]
+2025-12-19 09:11:44,640 - INFO - 127.0.0.1 - - [19/Dec/2025 09:11:44] "POST /api/command/collect HTTP/1.1" 200 -
+2025-12-19 09:11:44,696 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:44,697 - WARNING - No circuit data available
+2025-12-19 09:11:45,695 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:45,696 - WARNING - No circuit data available
+2025-12-19 09:11:46,695 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:46,696 - WARNING - No circuit data available
+2025-12-19 09:11:47,694 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:47,694 - WARNING - No circuit data available
+2025-12-19 09:11:48,695 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:48,696 - WARNING - No circuit data available
+2025-12-19 09:11:49,696 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:49,698 - WARNING - No circuit data available
+2025-12-19 09:11:50,696 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:50,697 - WARNING - No circuit data available
+2025-12-19 09:11:51,698 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:51,699 - WARNING - No circuit data available
+2025-12-19 09:11:52,696 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:52,697 - WARNING - No circuit data available
+2025-12-19 09:11:53,698 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:53,699 - WARNING - No circuit data available
+2025-12-19 09:11:54,699 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:54,699 - WARNING - No circuit data available
+2025-12-19 09:11:55,699 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:55,700 - WARNING - No circuit data available
+2025-12-19 09:11:56,701 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:56,701 - WARNING - No circuit data available
+2025-12-19 09:11:57,701 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:57,703 - WARNING - No circuit data available
+2025-12-19 09:11:58,701 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:58,703 - WARNING - No circuit data available
+2025-12-19 09:11:59,701 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:11:59,702 - WARNING - No circuit data available
+2025-12-19 09:12:00,702 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:00,703 - WARNING - No circuit data available
+2025-12-19 09:12:01,702 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:01,703 - WARNING - No circuit data available
+2025-12-19 09:12:02,702 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:02,703 - WARNING - No circuit data available
+2025-12-19 09:12:03,703 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:03,704 - WARNING - No circuit data available
+2025-12-19 09:12:04,702 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:04,703 - WARNING - No circuit data available
+2025-12-19 09:12:05,704 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:05,705 - WARNING - No circuit data available
+2025-12-19 09:12:06,705 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:06,706 - WARNING - No circuit data available
+2025-12-19 09:12:07,706 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:07,707 - WARNING - No circuit data available
+2025-12-19 09:12:08,706 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:08,707 - WARNING - No circuit data available
+2025-12-19 09:12:09,706 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:09,708 - WARNING - No circuit data available
+2025-12-19 09:12:10,708 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:10,708 - WARNING - No circuit data available
+2025-12-19 09:12:11,707 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:11,708 - WARNING - No circuit data available
+2025-12-19 09:12:12,710 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:12,710 - WARNING - No circuit data available
+2025-12-19 09:12:13,707 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:13,708 - WARNING - No circuit data available
+2025-12-19 09:12:14,709 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:14,710 - WARNING - No circuit data available
+2025-12-19 09:12:15,184 - INFO - Monitoring started for [{'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}, {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}]
+2025-12-19 09:12:15,186 - INFO - 127.0.0.1 - - [19/Dec/2025 09:12:15] "POST /api/command/collect HTTP/1.1" 200 -
+2025-12-19 09:12:15,710 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:15,713 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:15,714 - WARNING - No circuit data available
+2025-12-19 09:12:16,708 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:16,710 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:16,711 - WARNING - No circuit data available
+2025-12-19 09:12:17,709 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:17,712 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:17,713 - WARNING - No circuit data available
+2025-12-19 09:12:18,713 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:18,719 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:18,721 - WARNING - No circuit data available
+2025-12-19 09:12:19,712 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:19,717 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:19,718 - WARNING - No circuit data available
+2025-12-19 09:12:20,711 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:20,713 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:20,713 - WARNING - No circuit data available
+2025-12-19 09:12:21,710 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:21,712 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:21,713 - WARNING - No circuit data available
+2025-12-19 09:12:22,712 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:22,716 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:22,717 - WARNING - No circuit data available
+2025-12-19 09:12:23,711 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:23,715 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:23,715 - WARNING - No circuit data available
+2025-12-19 09:12:24,713 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:24,716 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:24,718 - WARNING - No circuit data available
+2025-12-19 09:12:25,712 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:25,713 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:25,714 - WARNING - No circuit data available
+2025-12-19 09:12:26,716 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:26,720 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:26,721 - WARNING - No circuit data available
+2025-12-19 09:12:27,712 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:27,714 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:27,714 - WARNING - No circuit data available
+2025-12-19 09:12:28,712 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:28,714 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:28,715 - WARNING - No circuit data available
+2025-12-19 09:12:29,713 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:29,715 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:29,716 - WARNING - No circuit data available
+2025-12-19 09:12:30,714 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:30,718 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:30,720 - WARNING - No circuit data available
+2025-12-19 09:12:31,716 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:31,719 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:31,720 - WARNING - No circuit data available
+2025-12-19 09:12:32,716 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:32,719 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:32,721 - WARNING - No circuit data available
+2025-12-19 09:12:33,715 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:33,744 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:33,745 - WARNING - No circuit data available
+2025-12-19 09:12:34,716 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:34,718 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:34,719 - WARNING - No circuit data available
+2025-12-19 09:12:35,716 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:35,719 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:35,719 - WARNING - No circuit data available
+2025-12-19 09:12:36,722 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:36,728 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:36,728 - WARNING - No circuit data available
+2025-12-19 09:12:37,716 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:37,718 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:37,719 - WARNING - No circuit data available
+2025-12-19 09:12:38,720 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:38,725 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:38,725 - WARNING - No circuit data available
+2025-12-19 09:12:39,722 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:39,726 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:39,727 - WARNING - No circuit data available
+2025-12-19 09:12:40,721 - ERROR - DB read error for circuit {'circuit_id': 1, 'device_id': 2, 'start_time': '2025-12-19T03:41:44.639091+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_1_20251219_091144.db', 'file_path': './StoredDbcs\\RealTimeData_2_1_20251219_091144.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:40,727 - ERROR - DB read error for circuit {'circuit_id': 2, 'device_id': 2, 'start_time': '2025-12-19T03:42:15.184353+00:00', 'status': 'active', 'file_name': 'RealTimeData_2_2_20251219_091215.db', 'file_path': './StoredDbcs\\RealTimeData_2_2_20251219_091215.db', 'created_at': ''}: no such column: timestamp
+2025-12-19 09:12:40,728 - WARNING - No circuit data available
+2025-12-19 09:12:41,104 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:12:41,183 - INFO -  * Restarting with stat
+2025-12-19 09:12:41,706 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:12:41,714 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:12:41,719 - WARNING -  * Debugger is active!
+2025-12-19 09:12:41,726 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:12:42,142 - INFO - 127.0.0.1 - - [19/Dec/2025 09:12:42] "GET /socket.io/?EIO=4&transport=polling&t=Piqiz_K HTTP/1.1" 200 -
+2025-12-19 09:12:42,154 - INFO - WebSocket client connected.
+2025-12-19 09:12:42,155 - INFO - 127.0.0.1 - - [19/Dec/2025 09:12:42] "POST /socket.io/?EIO=4&transport=polling&t=Piqiz_X&sid=dCDzHIRx_KsW2_SFAAAA HTTP/1.1" 200 -
+2025-12-19 09:12:42,171 - INFO - 127.0.0.1 - - [19/Dec/2025 09:12:42] "GET /socket.io/?EIO=4&transport=polling&t=Piqiz_a&sid=dCDzHIRx_KsW2_SFAAAA HTTP/1.1" 200 -
+2025-12-19 09:12:56,079 - INFO -  * Detected change in 'd:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\app.py', reloading
+2025-12-19 09:12:56,146 - INFO -  * Restarting with stat
+2025-12-19 09:13:01,429 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:13:01,434 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:13:01,450 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.6.168:5001
+2025-12-19 09:13:01,450 - INFO - [33mPress CTRL+C to quit[0m
+2025-12-19 09:13:01,451 - INFO -  * Restarting with stat
+2025-12-19 09:13:01,851 - INFO - ===== BTS Monitoring System Started =====
+2025-12-19 09:13:01,857 - INFO - Starting Flask SocketIO Server on port 5001...
+2025-12-19 09:13:01,861 - WARNING -  * Debugger is active!
+2025-12-19 09:13:01,866 - INFO -  * Debugger PIN: 142-785-699
+2025-12-19 09:13:02,096 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:02] "GET /socket.io/?EIO=4&transport=polling&t=Piqj2t9 HTTP/1.1" 200 -
+2025-12-19 09:13:02,104 - INFO - WebSocket client connected.
+2025-12-19 09:13:02,105 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:02] "POST /socket.io/?EIO=4&transport=polling&t=Piqj2tJ&sid=qFJxqwMq0EHDcZ5wAAAA HTTP/1.1" 200 -
+2025-12-19 09:13:02,110 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:02] "GET /socket.io/?EIO=4&transport=polling&t=Piqj2tK&sid=qFJxqwMq0EHDcZ5wAAAA HTTP/1.1" 200 -
+2025-12-19 09:13:08,229 - INFO - WebSocket client disconnected.
+2025-12-19 09:13:08,230 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:08] "GET /socket.io/?EIO=4&transport=websocket&sid=qFJxqwMq0EHDcZ5wAAAA HTTP/1.1" 200 -
+2025-12-19 09:13:08,547 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:08] "GET /dashboard HTTP/1.1" 200 -
+2025-12-19 09:13:08,705 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:08] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-12-19 09:13:08,804 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:08] "GET /static/js/socket.io.min.js HTTP/1.1" 200 -
+2025-12-19 09:13:08,898 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:08] "GET /static/img/cylogo.png HTTP/1.1" 200 -
+2025-12-19 09:13:08,899 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:08] "GET /static/img/logo.svg HTTP/1.1" 200 -
+2025-12-19 09:13:08,901 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:08] "GET /static/js/websocket.js HTTP/1.1" 200 -
+2025-12-19 09:13:08,902 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:08] "GET /static/js/main.js HTTP/1.1" 200 -
+2025-12-19 09:13:09,015 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:09] "GET /static/js/dashboard.js HTTP/1.1" 200 -
+2025-12-19 09:13:09,032 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:09] "GET /socket.io/?EIO=4&transport=polling&t=Piqj4ZX HTTP/1.1" 200 -
+2025-12-19 09:13:09,046 - INFO - WebSocket client connected.
+2025-12-19 09:13:09,046 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:09] "POST /socket.io/?EIO=4&transport=polling&t=Piqj4Zk&sid=67FbCjlUMlUhFc0MAAAC HTTP/1.1" 200 -
+2025-12-19 09:13:09,053 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:09] "GET /socket.io/?EIO=4&transport=polling&t=Piqj4Zm&sid=67FbCjlUMlUhFc0MAAAC HTTP/1.1" 200 -
+2025-12-19 09:13:09,114 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:09] "GET /api/devices HTTP/1.1" 200 -
+2025-12-19 09:13:09,218 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:09] "GET /static/img/logo.png HTTP/1.1" 200 -
+2025-12-19 09:13:09,343 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:09] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-12-19 09:13:09,346 - INFO - 127.0.0.1 - - [19/Dec/2025 09:13:09] "[33mGET /static/js/socket.io.min.js.map HTTP/1.1[0m" 404 -
+2025-12-19 10:52:18,216 - INFO - WebSocket client disconnected.
+2025-12-19 10:52:18,255 - INFO - 127.0.0.1 - - [19/Dec/2025 10:52:18] "GET /socket.io/?EIO=4&transport=websocket&sid=67FbCjlUMlUhFc0MAAAC HTTP/1.1" 200 -
+2025-12-19 10:52:24,239 - INFO - 127.0.0.1 - - [19/Dec/2025 10:52:24] "GET /socket.io/?EIO=4&transport=polling&t=Pir3oRm HTTP/1.1" 200 -
+2025-12-19 10:52:24,258 - INFO - WebSocket client connected.
+2025-12-19 10:52:24,259 - INFO - 127.0.0.1 - - [19/Dec/2025 10:52:24] "POST /socket.io/?EIO=4&transport=polling&t=Pir3oTx&sid=8QTOX_FBl2NzBncWAAAE HTTP/1.1" 200 -
+2025-12-19 10:52:24,607 - INFO - 127.0.0.1 - - [19/Dec/2025 10:52:24] "GET /socket.io/?EIO=4&transport=polling&t=Pir3oT-&sid=8QTOX_FBl2NzBncWAAAE HTTP/1.1" 200 -
+2025-12-19 11:18:28,971 - INFO - WebSocket client disconnected.
+2025-12-19 11:18:28,972 - INFO - 127.0.0.1 - - [19/Dec/2025 11:18:28] "GET /socket.io/?EIO=4&transport=websocket&sid=8QTOX_FBl2NzBncWAAAE HTTP/1.1" 200 -
+2025-12-19 11:18:32,841 - INFO - 127.0.0.1 - - [19/Dec/2025 11:18:32] "GET /socket.io/?EIO=4&transport=polling&t=Pir9nR5 HTTP/1.1" 200 -
+2025-12-19 11:18:32,847 - INFO - WebSocket client connected.
+2025-12-19 11:18:32,848 - INFO - 127.0.0.1 - - [19/Dec/2025 11:18:32] "POST /socket.io/?EIO=4&transport=polling&t=Pir9nRC&sid=yjoci9616PGjYtkMAAAG HTTP/1.1" 200 -
+2025-12-19 11:18:32,851 - INFO - 127.0.0.1 - - [19/Dec/2025 11:18:32] "GET /socket.io/?EIO=4&transport=polling&t=Pir9nRE&sid=yjoci9616PGjYtkMAAAG HTTP/1.1" 200 -

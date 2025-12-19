@@ -10,7 +10,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO, emit
 import jwt
 import requests
-from dbc_simulator import DBCDataSimulator
+# from dbc_simulator import DBCDataSimulator
 
 # =========================================================
 #  Configuration
@@ -35,7 +35,7 @@ DEFAULT_THRESHOLDS = {
 }
 API_BASE_URL = "http://localhost:5000"  # For simulated device API
 # Initialize with your DBC file
-sim = DBCDataSimulator("D:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\DBC_2.3kWh.dbc", db_folder=STORED_DBC_PATH, interval=1)
+# sim = DBCDataSimulator("D:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\DBC_2.3kWh.dbc", db_folder=STORED_DBC_PATH, interval=1)
 
 # =========================================================
 #  Flask Setup
@@ -357,7 +357,7 @@ def pause_circuit(device_id, circuit_id):
             # Pause demo data collection for this circuit (stops insertion but keeps file active)
             file_name = get_circuit_file_name(circuit_id)
             if hasattr(sim, 'pause_collect'):
-                sim.pause_collect(file_name)
+                # sim.pause_collect(file_name)
                 logging.info(f"Paused data collection for {file_name}")
             
             # Update circuit status
@@ -408,7 +408,7 @@ def stop_circuit(device_id, circuit_id):
             # Stop demo data collection for this circuit
             file_name = get_circuit_file_name(circuit_id)
             if hasattr(sim, 'stop_collect'):
-                sim.stop_collect(file_name)
+                # sim.stop_collect(file_name)
                 logging.info(f"Stopped data collection for {file_name}")
             
             # Update circuit status
@@ -468,7 +468,7 @@ def continue_circuit(device_id, circuit_id):
             # Resume demo data collection for this circuit
             file_name = get_circuit_file_name(circuit_id)
             if hasattr(sim, 'continue_collect'):
-                sim.continue_collect(file_name)
+                # sim.continue_collect(file_name)
                 logging.info(f"Resumed data collection for {file_name}")
             
             # Update circuit status
@@ -790,7 +790,7 @@ def start_monitoring():
                     # Store circuit with metadata instead of just ID
                     circuit = circuit_metadata
                     # Start collecting for some files
-                    sim.start_collect(circuit_metadata.get("file_name"))
+                    # sim.start_collect(circuit_metadata.get("file_name"))
                     
                 else:
                     logging.error(f"Failed to start monitoring via BTSAPI: {resp.status_code} - {resp.text}")
@@ -859,7 +859,7 @@ def start_demo():
             # Start demo data collection for this circuit
             if hasattr(sim, 'start_collect'):
                 try:
-                    sim.start_collect(f"circuit_{circuit_id}.db")
+                    # sim.start_collect(f"circuit_{circuit_id}.db")
                     logging.info(f"Started data collection for circuit_{circuit_id}.db")
                 except Exception as e:
                     logging.error(f"Error starting collection for circuit {circuit_id}: {e}")
@@ -889,7 +889,7 @@ def stop_demo():
             file_name = circuit.get("file_name", f"circuit_{circuit.get('circuit_id')}.db")
             if hasattr(sim, 'stop_collect'):
                 try:
-                    sim.stop_collect(file_name)
+                    # sim.stop_collect(file_name)
                     logging.info(f"Stopped data collection for {file_name}")
                 except Exception as e:
                     logging.error(f"Error stopping collection for {file_name}: {e}")
@@ -918,7 +918,8 @@ def demo_status():
     # Get simulator status for all files
     simulator_status = {}
     if hasattr(sim, 'get_all_statuses'):
-        simulator_status = sim.get_all_statuses()
+        # simulator_status = sim.get_all_statuses()
+        simulator_status = {}
     
     return json_response({
         "active": len(demo_circuits) > 0,
@@ -933,7 +934,8 @@ def get_simulator_status():
     """Get detailed simulator status for all files"""
     try:
         if hasattr(sim, 'get_all_statuses'):
-            statuses = sim.get_all_statuses()
+            # statuses = sim.get_all_statuses()
+            statuses = {}
             return json_response({
                 "simulator_statuses": statuses,
                 "total_files": len(statuses)
