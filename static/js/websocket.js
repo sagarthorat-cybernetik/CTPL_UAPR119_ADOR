@@ -39,7 +39,7 @@ function initWebSocket() {
     socket.on("live_data", (payload) => {
       try {
         // Debug: Log the incoming data for debugging
-        // console.log("📊 Live Data Received:", payload);
+        console.log("📊 Live Data Received:", payload);
         
         if (!payload) {
           console.warn("⚠️ Empty payload received");

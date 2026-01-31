@@ -147,6 +147,8 @@ button, input, select {
   background: transparent;
   border: 2px solid var(--border-color);
   color: var(--text-primary);
+      padding: 1rem;
+    font-size: 1rem;
 }
 .btn-ghost:hover {
   background: var(--bg-glass);
@@ -1247,4 +1249,93 @@ width: 80%;
   font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+.tables{
+    display: flex;
+    margin: 1%;
+}
+.threshold-tables-container{
+  align-content: center;
+}
+.dropdowns{
+  text-align: center;
+ 
+}
+.dropdowns select{
+    padding: 0.4rem 0.8rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    width: 20%;
+}
+.dropdowns select:focus {
+  outline: none;
+  border-color: var(--accent-saffron);
+}
+.dropdowns option{
+       height: 10vh;
+  overflow: scroll;
+      padding: 0.4rem 0.8rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    width: 100%;
+}
+.threshold-table{
+  border: 2px solid var(--border-color);
+  padding: 1%;
+}
+.threshold-table h3{
+  text-align: center;
+}
+.threshold-table-data, .headers-table-data{
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    background: var(--bg-primary);
+}
+.threshold-table-data th, .headers-table-data th{
+      background: var(--accent-saffron);
+    color: #000;
+    padding: 0.1rem;
+    text-align:center;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 1rem;
+
+} 
+.threshold-table-data td, .headers-table-data td{
+      padding: 0.4rem 0.4rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+.threshold-table-data tr:nth-child(even), .headers-table-data tr:nth-child(even) {
+  background: var(--bg-secondary);
+}
+.threshold-table h2{
+      margin-bottom: 1rem;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+.threshold-table h2 input, .threshold-table-data td input, .headers-table-data td input{
+      margin-left: 1rem;
+    padding: 0.2rem 0.2rem;
+    font-size: 1rem;
+    border: 1px solid black;
+}
+.form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    gap: 10%;
 }

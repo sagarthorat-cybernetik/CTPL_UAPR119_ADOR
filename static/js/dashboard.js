@@ -15,51 +15,24 @@ let currentModalCircuit = null;
 let modalUpdateInterval = null;
 let circuitChartData = {}; // Store chart data for each circuit
 
-/* ============================================================
-   1️⃣ Load Devices
-   ============================================================ */
-async function loadDevices() {
-  try {
-    const res = await BTS.apiFetch(`${BTS.API_BASE}/api/devices`);
-    if (!res) return;
-    const data = await res.json();
-    devices = data.devices || [];
-
-    // deviceList.innerHTML = "";
-    // devices.forEach((dev) => {
-    //   const li = document.createElement("li");
-    //   li.classList.add("device");
-    //   li.textContent = `Device ${dev.deviceId || dev.id}`;
-    //   li.dataset.deviceId = dev.deviceId || dev.id;
-    //   li.addEventListener("click", () => selectDevice(li.dataset.deviceId));
-    //   deviceList.appendChild(li);
-    // });
-
-    if (devices.length > 0 && !selectedDeviceId) {
-      selectDevice(devices[0].deviceId || devices[0].id);
-    }
-  } catch (err) {
-    console.error("Error loading devices:", err);
-  }
-}
 
 /* ============================================================
    2️⃣ Select Device → Load Circuits
    ============================================================ */
 async function selectDevice(deviceId) {
   selectedDeviceId = deviceId;
-  console.log("Selected device:", deviceId);
+  // console.log("Selected device:", deviceId);
 
   // Demo: 16 circuits for now
   circuits = Array.from({ length: 16 }, (_, i) => ({
+    deviceId: deviceId,
     circuitId: i + 1,
-    deviceId,
     name: `Circuit ${i + 1}`,
-    running: false,
-    collecting: false,
+    Status: "Stopped",
     batteryId: "--", // Generate battery ID
     startTime: null, // Will be set when collecting starts
-    lastUpdated: null,
+    StopTime: null,
+    CycleTime: null,
     data: {}
   }));
 
@@ -67,20 +40,6 @@ async function selectDevice(deviceId) {
   renderGallery();
 }
 
-/* ============================================================
-   3️⃣ Render Sidebar Circuits
-   ============================================================ */
-// function renderCircuitList() {
-//   circuitList.innerHTML = "";
-//   circuits.forEach((c) => {
-//     const li = document.createElement("li");
-//     li.classList.add("circuit");
-//     li.textContent = c.name;
-//     li.dataset.circuitId = c.circuitId;
-//     li.addEventListener("click", () => scrollToCircuit(c.circuitId));
-//     circuitList.appendChild(li);
-//   });
-// }
 
 /* ============================================================
    4️⃣ Render Gallery Cards
@@ -91,8 +50,9 @@ function renderGallery() {
     const card = document.createElement("article");
     card.classList.add("circuit-card");
     card.dataset.deviceId = circuit.deviceId;
-    card.dataset.circuitId = circuit.circuitId;
-
+    card.dataset.circuitId = circuit.circuitId;    
+    
+    const units = ["mV","Ah", "V", "V", "V", "˚C", "˚C", "%" , "˚C"];
     card.innerHTML = `
       <header class="card-header">
         <h3 class="circuit-name">${circuit.name}</h3>
@@ -103,64 +63,23 @@ function renderGallery() {
                 <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
               </svg>
             </button>
-            <div class="dropdown-menu">
-              <button class="btn-menu" title="Actions">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                </svg>
-              </button>
-              <div class="dropdown-content">
-                <div class="dropdown-item" data-action="collect">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                  </svg>
-                  Start Collect
-                </div>
-                <div class="dropdown-item" data-action="pause">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                  </svg>
-                  Pause
-                </div>
-                <div class="dropdown-item" data-action="continue">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                  Continue
-                </div>
-                <div class="dropdown-item" data-action="stop">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 6h12v12H6z"/>
-                  </svg>
-                  Stop
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </header>
-          <div class="badges">
-            <span class="badge status ${circuit.running ? "running" : "stopped"}" id="status-${circuit.deviceId}-${circuit.circuitId}">
-              ${circuit.running ? "Running" : "Stopped"}
-            </span>
-            <span class="badge collect ${circuit.collecting ? "started" : "stopped"}" id="collect-${circuit.deviceId}-${circuit.circuitId}">
-              Collect: ${circuit.collecting ? "Started" : "Stopped"}
-            </span>
+          <div class="badges">           
             <span class="badge battery-id" id="battery-id-${circuit.deviceId}-${circuit.circuitId}">
-                Battery ID: ${circuit.batteryId}
-            </span>
-            <span class="badge start-time" id="start-time-${circuit.deviceId}-${circuit.circuitId}">
-                ${circuit.startTime ? `Started: ${new Date(circuit.startTime).toLocaleTimeString()}` : 'Not Started'}
+               ${circuit.batteryId}
             </span>
           </div>
 
 
       <div class="metrics">
-        ${["temperature", "voltage", "current", "power", "resistance"].map(
-          (m) => `
+        ${["Cell Deviation", "Capacity", "Pack Voltage", "Max cell Voltage ", "Min cell Voltage", "Max cell Temperature ", "Min Cell Temperature", "SOC" , "Temp Difference ∆T(Manual)"].map(
+          (m,i) => `
           <div class="metric">
             <span class="label">${m.charAt(0).toUpperCase() + m.slice(1)}</span>
-            <span class="value" id="${m}-${circuit.deviceId}-${circuit.circuitId}">--</span>
+            <span class="value" id="${m}-${circuit.deviceId}-${circuit.circuitId}">--${units[i]}</span>
           </div>
         `
         ).join("")}
@@ -174,28 +93,6 @@ function renderGallery() {
       openCircuitModal(circuit);
     });
 
-    // Add event listeners for dropdown menu
-    const menuBtn = card.querySelector(".btn-menu");
-    const dropdownContent = card.querySelector(".dropdown-content");
-    
-    menuBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      // Close other open dropdowns
-      document.querySelectorAll(".dropdown-content.show").forEach(dd => {
-        if (dd !== dropdownContent) dd.classList.remove("show");
-      });
-      dropdownContent.classList.toggle("show");
-    });
-
-    // Add event listeners for dropdown items
-    card.querySelectorAll(".dropdown-item").forEach((item) => {
-      item.addEventListener("click", (e) => {
-        e.stopPropagation();
-        dropdownContent.classList.remove("show");
-        handleCircuitAction(e, circuit);
-      });
-    });
-
     gallery.appendChild(card);
   });
 
@@ -205,6 +102,28 @@ function renderGallery() {
       dd.classList.remove("show");
     });
   });
+}
+
+function loadmachine1(){
+  current_machine="Machine 1";
+  selectDevice(1);
+  document.getElementById("current-machine").innerText=current_machine;
+  // hide machine 1 button and show others
+
+}
+
+function loadmachine2(){
+  current_machine="Machine 2";
+  selectDevice(2);
+  document.getElementById("current-machine").innerText=current_machine;
+  // hide machine 2 button and show others
+}
+
+function loadmachine3(){
+  current_machine="Machine 3";
+  selectDevice(3);
+  document.getElementById("current-machine").innerText="HRD/HRC";
+  // hide machine 3 button and show others
 }
 
 /* ============================================================
@@ -500,11 +419,7 @@ function openCircuitModal(circuit) {
   circuitChartData[circuitKey] = [];
   
   modal.setAttribute("aria-hidden", "false");
-  document.getElementById("detailDeviceId").textContent = circuit.deviceId || '--';
-  document.getElementById("detailCircuitId").textContent = circuit.circuitId || '--';
-  document.getElementById("detailCollectStatus").textContent = circuit.collecting ? "Started" : "Stopped";
-  document.getElementById("detailRunStatus").textContent = circuit.running ? "Running" : "Stopped";
-  document.getElementById("detailDbFile").textContent = circuit.dbFile || "--";
+
   
   // Update last updated time
   const detailUpdatedEl = document.getElementById("detailUpdated");
@@ -1094,8 +1009,6 @@ function formatValue(value, unit) {
 }
 
 function updateControlsPanel() {
-  // Update controls panel when the Controls tab is activated
-  console.log("Updating controls panel...");
   
   // Add event listeners to modal control buttons if not already added
   const modalCollect = document.getElementById('modalCollect');
@@ -1190,7 +1103,7 @@ function scrollToCircuit(circuitId) {
    Initialize Dashboard
    ============================================================ */
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadDevices();
+  loadmachine1(); // Default to device 1
 
   // Initialize tab functionality
   initializeTabs();
@@ -1208,46 +1121,39 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (refreshBtn) refreshBtn.addEventListener("click", loadDevices);
   
   // Demo controls
-  const startDemoBtn = document.getElementById("startDemo");
-  const stopDemoBtn = document.getElementById("stopDemo");
+  const machine1Btn = document.getElementById("Machine1");
+  const Machine2Btn = document.getElementById("Machine2");
+  const Machine3Btn = document.getElementById("Machine3");
   
-  if (startDemoBtn) {
-    startDemoBtn.addEventListener("click", async () => {
+  if (machine1Btn) {
+    machine1Btn.addEventListener("click", async () => {
       try {
-        const response = await BTS.apiFetch(`${BTS.API_BASE}/api/demo/start`, {
-          method: "POST",
-          headers: BTS.getAuthHeaders(),
-          body: JSON.stringify({ circuits: [1, 2, 3, 4, 5] })
-        });
-        
-        if (response && response.ok) {
-          const data = await response.json();
-          console.log("✅ Demo started:", data);
-          alert(`Demo started for circuits: ${data.circuits.join(", ")}`);
-        }
+        loadmachine1();
       } catch (error) {
-        console.error("❌ Error starting demo:", error);
-        alert("Failed to start demo");
+        console.error("❌ Error starting Machine 1 demo:", error);
+        alert("Failed to start Machine 1 demo");
+      }
+    });
+  }
+
+  if (Machine2Btn) {
+    Machine2Btn.addEventListener("click", async () => {
+      try {
+        loadmachine2();
+      } catch (error) {
+        console.error("❌ Error starting Machine 2 demo:", error);
+        alert("Failed to start Machine 2 demo");
       }
     });
   }
   
-  if (stopDemoBtn) {
-    stopDemoBtn.addEventListener("click", async () => {
+  if (Machine3Btn) {
+    Machine3Btn.addEventListener("click", async () => {
       try {
-        const response = await BTS.apiFetch(`${BTS.API_BASE}/api/demo/stop`, {
-          method: "POST",
-          headers: BTS.getAuthHeaders()
-        });
-        
-        if (response && response.ok) {
-          const data = await response.json();
-          console.log("⏹️ Demo stopped:", data);
-          alert("Demo stopped");
-        }
+        loadmachine3();
       } catch (error) {
-        console.error("❌ Error stopping demo:", error);
-        alert("Failed to stop demo");
+        console.error("❌ Error starting Machine 3 demo:", error);
+        alert("Failed to start Machine 3 demo");
       }
     });
   }

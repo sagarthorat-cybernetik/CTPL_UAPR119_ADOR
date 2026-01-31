@@ -27,12 +27,13 @@
             <img src="/static/img/logo.svg" alt="Logocy" class="logo" />
           </div>
         </div>
-        <h1 class="title">Ador Control Dashboard</h1>
+        <h1 class="title"> <span id="current-machine"></span> Control Dashboard</h1>
         <div class="topbar-actions">
-            <!-- <div class="demo-controls" style="margin-right: 1rem;">
-              <button class="btn" id="startDemo" style="background: var(--accent-saffron); color: white; margin-right: 0.5rem;">Start Demo</button>
-              <button class="btn" id="stopDemo" style="background: var(--accent-red); color: white;">Stop Demo</button>
-            </div> -->
+            <div class="demo-controls" style="margin-right: 1rem;">
+              <button class="btn" id="Machine1">Machine 01</button>
+              <button class="btn" id="Machine2">Machine 02</button>
+              <button class="btn" id="Machine3">HRD/HRC</button>
+            </div>
             <div class="sidebar-actions">
               <button class="btn-logout" id="adminBtn">Admin</button>
               <button class="btn-logout" id="logoutBtn">Logout</button>
@@ -114,11 +115,6 @@
         <button class="btn btn-ghost" id="modalExport">Export CSV</button> -->
           <div class="tabbtn">
             <button class="tab active" data-tab="liveChart" role="tab" aria-selected="true">Graphs</button>
-            <button class="tab" data-tab="liveTable" role="tab" aria-selected="false">Table</button>
-            <button class="tab" data-tab="controls" role="tab" aria-selected="false">Controls</button>
-          </div>
-          <div class="downloadbtn">
-            <button class="btn btn-ghost" id="modalExport">Export Excel</button>
           </div>
         </nav>
 
@@ -128,12 +124,15 @@
           <div class="tab-panel active" id="liveChart" role="tabpanel" aria-labelledby="Graphs">
             <!-- Graph Navigation Buttons -->
             <div class="graph-navigation">
-              <button class="btn btn-graph active" data-graph="temperature">Temperature</button>
-              <button class="btn btn-graph" data-graph="voltage">Voltage</button>
-              <button class="btn btn-graph" data-graph="current">Current</button>
-              <button class="btn btn-graph" data-graph="power">Power</button>
-              <button class="btn btn-graph" data-graph="resistance">Resistance</button>
-              <button class="btn btn-graph" data-graph="overview">Overview</button>
+              <button class="btn btn-graph active" data-graph="cell-deviation">Cell Deviation</button>
+              <button class="btn btn-graph" data-graph="capacity">Capacity</button>
+              <button class="btn btn-graph" data-graph="pack-voltage">Pack Voltage</button>
+              <button class="btn btn-graph" data-graph="max-cell-voltage">Max cell Voltage</button>
+              <button class="btn btn-graph" data-graph="min-cell-voltage">Min cell Voltage</button>
+              <button class="btn btn-graph" data-graph="max-cell-temperature">Max cell Temperature</button>
+              <button class="btn btn-graph" data-graph="min-cell-temperature">Min Cell Temperature</button>
+              <button class="btn btn-graph" data-graph="soc">SOC</button>
+              <button class="btn btn-graph" data-graph="temp-difference">Temp Difference ∆T(Manual)</button>
             </div>
 
             <!-- Full Page Graph Container -->
@@ -166,28 +165,31 @@
           </div>
 
           <!-- Table Panel -->
-          <div class="tab-panel" id="liveTable" role="tabpanel" aria-labelledby="Table">
+          <!-- <div class="tab-panel" id="liveTable" role="tabpanel" aria-labelledby="Table">
             <div class="table-wrap">
               <table class="data-table" id="readingTable">
                 <thead>
                   <tr>
                     <th>Timestamp</th>
-                    <th>Temperature</th>
-                    <th>Voltage</th>
-                    <th>Current</th>
-                    <th>Power</th>
-                    <th>Resistance</th>
+                    <th>Cell Deviation (mV)</th>
+                    <th>Capacity (Ah)</th>
+                    <th>Pack Voltage (V)</th>
+                    <th>Max cell Voltage (V)</th>
+                    <th>Min cell Voltage (V)</th>
+                    <th>Max cell Temperature (˚C)</th>
+                    <th>Min Cell Temperature (˚C)</th>
+                    <th>SOC (%)</th>
+                    <th>Temp Difference ∆T(Manual) (˚C)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- JS appends rows here -->
                 </tbody>
               </table>
             </div>
-          </div>
+          </div> -->
 
           <!-- Controls Panel -->
-          <div class="tab-panel" id="controls" role="tabpanel" aria-labelledby="Controls">
+          <!-- <div class="tab-panel" id="controls" role="tabpanel" aria-labelledby="Controls">
             <div class="control-grid">
               <button class="btn btn-primary" id="modalCollect">Collect</button>
               <button class="btn btn-warning" id="modalPause">Pause</button>
@@ -203,7 +205,7 @@
               <div class="meta-item"><span class="label">Run Status</span><span class="value" id="detailRunStatus">--</span></div>
               <div class="meta-item"><span class="label">Last Updated</span><span class="value" id="detailUpdated">--</span></div>
             </div>
-          </div>
+          </div> -->
         </div>
       </section>
 

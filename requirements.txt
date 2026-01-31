@@ -4,3 +4,4 @@ eventlet
 requests
 PyJWT
 flask-sock
+pandas
