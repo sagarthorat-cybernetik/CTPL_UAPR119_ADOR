@@ -322,6 +322,10 @@ def check_range(value, min_val=None, max_val=None):
         return False, f"{value} > max {max_val}"
 
     return True, "OK"
+def to_native(val):
+    if hasattr(val, "item"):
+        return val.item()
+    return val
 
 def evaluate_thresholds(data, thresholds):
     """
@@ -339,7 +343,7 @@ def evaluate_thresholds(data, thresholds):
             is_ok, reason = check_range(value, min_val, max_val)
 
             results[key] = {
-                "value": value,
+                "value": to_native(value),
                 "min": min_val,
                 "max": max_val,
                 "status": "PASS" if is_ok else "FAIL",
@@ -401,18 +405,19 @@ def background_reader_thread():
             # check if new file is available in base path
             time.sleep(DATA_READ_INTERVAL)
             base_path = os.path.join(BASE_DIR, "data_files")
-            files = [f for f in os.listdir(base_path) if f.endswith(".xlsx")]
+            files = [f for f in os.listdir(base_path) if f.endswith(".xlsx") and not f.startswith("~$")]
             # print("Files found:", files)
             for file in files:
                 if file not in PROCESSED_FILES:
-                    # PROCESSED_FILES.append(file)
+                    PROCESSED_FILES.append(file)
 
                     logging.info(f"Processing file: {file}")
                     
                     # Extract metadata from file name
                     parts = file.split("_")
                     date_str = parts[0]
-                    device_channel = parts[1]
+                    device_channel = parts[1].split("-")[0]
+                    device_id = parts[1].split("-")[1]
                     battery_id = parts[2].replace(".xlsx", "")
                     date_time = datetime.strptime(date_str, "%Y-%m-%d %H-%M-%S")
                     if battery_id.startswith("M"):
@@ -522,21 +527,24 @@ def background_reader_thread():
                     print("Evaluation Results:", evaluated, "Overall Pass:", overall_pass)
                     final_status = "PASS" if overall_pass else "FAIL"
                     send_result_to_plc(None, None, None, None, final_status)
+                    data["charge"] = {k: to_native(v) for k, v in data["charge"].items()}
+                    data["discharge"] = {k: to_native(v) for k, v in data["discharge"].items()}
 
                     socketio.emit(
-                        "data_update",
-                        {
-                            "meta": {
-                                "battery_id": battery_id,
-                                "battery_type": battery_type,
-                                "test_type": test_type,
-                                "device_channel": device_channel,
-                                "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
-                            },
-                            "results": data,
-                            "evaluated": evaluated,
-                            "final_status": final_status
-                        }
+                        "live_data",
+                        {"data_update":{
+                                "meta": {
+                                    "battery_id": battery_id,
+                                    "battery_type": battery_type,
+                                    "test_type": test_type,
+                                    "device_id": device_id,
+                                    "device_channel": device_channel,
+                                    "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
+                                },
+                                "results": data,
+                                "evaluated": evaluated,
+                                "final_status": final_status
+                            }}
                     )
                     logging.info(f"Data emitted: {data}")
                     thresholds = load_thresholds()
@@ -560,6 +568,7 @@ def background_reader_thread():
                     logging.debug("No new files to process.")
                     continue
         except Exception as e:
+            print(f"Error in background_reader_thread: {e}")
             logging.error(f"Error in background_reader_thread: {e}")
 
 

@@ -21,14 +21,18 @@ let circuitChartData = {}; // Store chart data for each circuit
    ============================================================ */
 async function selectDevice(deviceId) {
   selectedDeviceId = deviceId;
-  // console.log("Selected device:", deviceId);
-
+  let devicecount=0;
+  if (deviceId && deviceId == "1") {
+    devicecount = 2;
+  } else {
+    devicecount =16;
+  }
   // Demo: 16 circuits for now
-  circuits = Array.from({ length: 16 }, (_, i) => ({
+  circuits = Array.from({ length: devicecount }, (_, i) => ({
     deviceId: deviceId,
     circuitId: i + 1,
     name: `Circuit ${i + 1}`,
-    Status: "Stopped",
+    Status: "--",
     batteryId: "--", // Generate battery ID
     startTime: null, // Will be set when collecting starts
     StopTime: null,
@@ -58,11 +62,6 @@ function renderGallery() {
         <h3 class="circuit-name">${circuit.name}</h3>
         <div class="card-controls">
           <div class="action-controls">
-            <button class="btn-maximize" data-action="open" title="Open Details">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-              </svg>
-            </button>
             
           </div>
         </div>
@@ -71,11 +70,12 @@ function renderGallery() {
             <span class="badge battery-id" id="battery-id-${circuit.deviceId}-${circuit.circuitId}">
                ${circuit.batteryId}
             </span>
+            <span class= "badge status ${circuit.Status.toLowerCase()}" id="status-${circuit.deviceId}-${circuit.circuitId}"> ${circuit.Status} </span>
           </div>
 
 
       <div class="metrics">
-        ${["Cell Deviation", "Capacity", "Pack Voltage", "Max cell Voltage ", "Min cell Voltage", "Max cell Temperature ", "Min Cell Temperature", "SOC" , "Temp Difference ∆T(Manual)"].map(
+        ${["Cell_Deviation", "Capacity", "Pack_Voltage", "Max_cell_Voltage", "Min_cell_Voltage", "Max_cell_Temperature", "Min_Cell_Temperature", "SOC" , "Temp_Difference"].map(
           (m,i) => `
           <div class="metric">
             <span class="label">${m.charAt(0).toUpperCase() + m.slice(1)}</span>
@@ -86,12 +86,7 @@ function renderGallery() {
       </div>
     `;
 
-    // Add event listeners for maximize button
-    const maximizeBtn = card.querySelector(".btn-maximize");
-    maximizeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      openCircuitModal(circuit);
-    });
+   
 
     gallery.appendChild(card);
   });
@@ -107,7 +102,7 @@ function renderGallery() {
 function loadmachine1(){
   current_machine="Machine 1";
   selectDevice(1);
-  document.getElementById("current-machine").innerText=current_machine;
+  document.getElementById("current-machine").innerText="HRD/HRC";
   // hide machine 1 button and show others
 
 }
@@ -122,7 +117,7 @@ function loadmachine2(){
 function loadmachine3(){
   current_machine="Machine 3";
   selectDevice(3);
-  document.getElementById("current-machine").innerText="HRD/HRC";
+  document.getElementById("current-machine").innerText=current_machine;
   // hide machine 3 button and show others
 }
 
@@ -261,144 +256,77 @@ async function handleCircuitAction(e, circuit) {
    6️⃣ Live Data Updates (from websocket.js)
    ============================================================ */
 function updateLiveCircuitData(payload) {
-  // console.log("🎯 Dashboard updating with payload:", payload);
+  console.log(payload);
   
-  if (!payload || !payload.circuits) {
-    console.warn("⚠️ No circuits data in payload");
-    return;
+  // show the alert popup with whatever data is received in payload
+  if (!payload) return;
+  if (payload.data_update.meta.device_id !== undefined && payload.data_update.meta.device_id === "1"){ 
+    loadmachine1();
   }
+  else if (payload.data_update.meta.device_id !== undefined && payload.data_update.meta.device_id === "2"){
+    loadmachine2();
+  }
+  else if (payload.data_update.meta.device_id !== undefined && payload.data_update.meta.device_id === "3"){
+    loadmachine3();
+  }
+  // get the articles which have data-device-id and data-circuit-id == payload device_id and circuit_id
+  const articles = document.querySelectorAll(`[data-device-id="${payload.data_update.meta.device_id}"][data-circuit-id="${payload.data_update.meta.device_channel}"]`);
 
-  payload.circuits.forEach((circuitData) => {
-    // console.log("🔄 Processing circuit data:", circuitData);
-    
-    const circuit_id = circuitData.circuit_id || circuitData.circuitId;
-    const deviceId = selectedDeviceId || 2; // Fallback to device 2
-    
-    if (!circuit_id) {
-      console.warn("⚠️ No circuit_id found in data:", circuitData);
-      return;
+  articles.forEach((article) => {
+    // update battery id
+    const batteryIdEl = article.querySelector(`#battery-id-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (batteryIdEl) {
+      batteryIdEl.textContent = payload.data_update.meta.battery_id || "--";
     }
-
-    // Update the circuit in our local array
-    const circuitIndex = circuits.findIndex(c => c.circuitId == circuit_id);
-    if (circuitIndex !== -1) {
-      circuits[circuitIndex].running = true;
-      circuits[circuitIndex].collecting = true;
-      circuits[circuitIndex].lastUpdated = circuitData.timestamp || new Date().toISOString();
-      
-      // Set start time if not already set
-      if (!circuits[circuitIndex].startTime) {
-        circuits[circuitIndex].startTime = circuitData.timestamp || new Date().toISOString();
-      }
-    }
-    // console.log(circuitData);
-    
-    // Extract metrics with fallbacks
-    const metrics = {
-      temperature: circuitData.temperature || circuitData.MaxTemp || circuitData.maxtemp || '--',
-      voltage: circuitData.avgcellvol || circuitData.PackVol || circuitData.packvol || '--',
-      current: circuitData.current || circuitData.PackCurr || circuitData.packcurr || '--',
-      power: circuitData.ressocprot || circuitData.Power || '--',
-      resistance: circuitData.resstatus || circuitData.Resistance || '--'
-    };
-
-    // console.log(`📊 Circuit ${circuit_id} metrics:`, metrics);
-
-    // Update metric displays
-    Object.entries(metrics).forEach(([key, value]) => {
-      const el = document.getElementById(`${key}-${deviceId}-${circuit_id}`);
-      if (el) {
-        if (value !== '--' && typeof value === 'number') {
-          // Format numbers appropriately
-          if (key === 'temperature') {
-            el.textContent = `${value.toFixed(1)}°C`;
-          } else if (key === 'voltage') {
-            el.textContent = `${value.toFixed(2)}V`;
-          } else if (key === 'current') {
-            el.textContent = `${value.toFixed(2)}A`;
-          } else if (key === 'power') {
-            el.textContent = `${value.toFixed(2)}W`;
-          } else if (key === 'resistance') {
-            el.textContent = `${value.toFixed(2)}Ω`;
-          } else {
-            el.textContent = value.toFixed ? value.toFixed(2) : value;
-          }
-        } else {
-          el.textContent = value;
-        }
-        // console.log(`✅ Updated ${key} for circuit ${circuit_id}: ${el.textContent}`);
-      } else {
-        console.warn(`⚠️ Element not found: ${key}-${deviceId}-${circuit_id}`);
-      }
-    });
-
-    // Update status badges
-    const statusEl = document.getElementById(`status-${deviceId}-${circuit_id}`);
-    const collectEl = document.getElementById(`collect-${deviceId}-${circuit_id}`);
-    const batteryIdEl = document.getElementById(`battery-id-${deviceId}-${circuit_id}`);
-    const startTimeEl = document.getElementById(`start-time-${deviceId}-${circuit_id}`);
-    
+    // update status
+    const statusEl = article.querySelector(`#status-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
     if (statusEl) {
-      // Update status text based on circuit state or data
-      let statusText = "Stopped";
-      // console.log(circuitData.status);
-      
-      if (circuitData.status) {
-        switch(circuitData.status) {
-          case 1:
-            statusText = "Rest";
-            break;
-          case 2:
-            statusText = "Charging";
-            break;
-          case 3:
-            statusText = "Discharging";
-            break;
-          case 4:
-            statusText = "Stop";
-            break;
-          case 5:
-            statusText = "Paused";
-            break;
-          default:
-            statusText = "Running";
-        }
-      } else if (circuits[circuitIndex] && circuits[circuitIndex].running) {
-        statusText = "Running";
-      }
-      statusEl.textContent = statusText;
-      statusEl.className = `badge status ${statusText.toLowerCase()}`;
-      // console.log(`✅ Updated status for circuit ${circuit_id}: Running`);
+      statusEl.textContent = payload.data_update.final_status || "--";
+      statusEl.className = `badge status ${payload.data_update.final_status ? payload.data_update.final_status.toLowerCase() : 'unknown'}`;
     }
-    
-    if (collectEl) {
-      collectEl.textContent = "Collect: Started";
-      collectEl.className = "badge collect started";
-      // console.log(`✅ Updated collect status for circuit ${circuit_id}: Started`);
+    // update metrics
+    const cell_deviation_el = article.querySelector(`#Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (cell_deviation_el) {
+      // round to 4 decimal places
+      const value = Number(payload.data_update.results.charge.Cell_Deviation).toFixed(4);
+      cell_deviation_el.textContent = payload.data_update.results.charge.Cell_Deviation !== undefined ? `${value} mV` : "--mV";
     }
-
-    // Update battery ID if provided in data
-    if (batteryIdEl && circuitData.battery_id) {
-      batteryIdEl.textContent = `Battery ID: ${circuitData.battery_id}`;
-      // console.log(`✅ Updated battery ID for circuit ${circuit_id}: ${circuitData.battery_id}`);
+    const capacity_el = article.querySelector(`#Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (capacity_el) {
+      capacity_el.textContent = payload.data_update.results.charge.Capacity !== undefined ? `${Number(payload.data_update.results.charge.Capacity).toFixed(4)}` : "--Ah";
     }
-
-    // Update start time
-    if (startTimeEl && circuitIndex !== -1 && circuits[circuitIndex].startTime) {
-      const startTime = new Date(circuits[circuitIndex].startTime);
-      startTimeEl.textContent = `Started: ${startTime.toLocaleTimeString()}`;
-      // console.log(`✅ Updated start time for circuit ${circuit_id}: ${startTime.toLocaleTimeString()}`);
+    const pack_voltage_el = article.querySelector(`#Pack_Voltage-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (pack_voltage_el) {
+      pack_voltage_el.textContent = payload.data_update.results.charge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Pack_Voltage).toFixed(4)} V` : "--V";
+    }
+    const max_cell_voltage_el = article.querySelector(`#Max_cell_Voltage-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (max_cell_voltage_el) {
+      max_cell_voltage_el.textContent = payload.data_update.results.charge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
+    }
+    const min_cell_voltage_el = article.querySelector(`#Min_cell_Voltage-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (min_cell_voltage_el) {
+      min_cell_voltage_el.textContent = payload.data_update.results.charge.Min_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Min_Cell_Voltage).toFixed(4)} V` : "--V";
+    }
+    const max_cell_temperature_el = article.querySelector(`#Max_cell_Temperature-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (max_cell_temperature_el) {
+      max_cell_temperature_el.textContent = payload.data_update.results.charge.Max_Cell_Temperature !== undefined ? `${Number(payload.data_update.results.charge.Max_Cell_Temperature).toFixed(4)} ˚C` : "--˚C";
+    }
+    const min_cell_temperature_el = article.querySelector(`#Min_Cell_Temperature-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (min_cell_temperature_el) {      
+      min_cell_temperature_el.textContent = payload.data_update.results.charge.Min_Cell_Temperature !== undefined ? `${Number(payload.data_update.results.charge.Min_Cell_Temperature).toFixed(4)} ˚C` : "--˚C";
+    }
+    const soc_el = article.querySelector(`#SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (soc_el) {
+      soc_el.textContent = payload.data_update.results.charge.SOC !== undefined ? `${Number(payload.data_update.results.charge.SOC).toFixed(4)} %` : "--%";
+    }
+    const temp_difference_el = article.querySelector(`#Temp_Difference-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (temp_difference_el) {
+      temp_difference_el.textContent = payload.data_update.results.charge.temperature_difference !== undefined ? `${Number(payload.data_update.results.charge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
     }
 
-    // Update last updated time in modal if open
-    const detailUpdatedEl = document.getElementById("detailUpdated");
-    if (detailUpdatedEl) {
-      detailUpdatedEl.textContent = new Date().toLocaleString();
-    }
   });
-
-  // Log summary
-  // console.log(`🎯 Dashboard update complete. Updated ${payload.circuits.length} circuits`);
+  
+  
 }
 
 /* ============================================================
@@ -1110,9 +1038,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Initialize graph navigation
   initializeGraphNavigation();
-
+  
   // Start listening to live data
+
   if (window.BTSWebSocket) {
+    console.log("listing to the socket");
+    
     window.BTSWebSocket.onData = updateLiveCircuitData;
   }
 

@@ -1339,3 +1339,26 @@ width: 80%;
     margin-top: 1rem;
     gap: 10%;
 }
+
+.fail{
+    background-color: var(--accent-red);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+.pass{
+    background-color: var(--accent-saffron);
+    color: black;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: var(--transition);
+}

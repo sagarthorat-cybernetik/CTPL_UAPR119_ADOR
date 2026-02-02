@@ -39,7 +39,7 @@ function initWebSocket() {
     socket.on("live_data", (payload) => {
       try {
         // Debug: Log the incoming data for debugging
-        console.log("📊 Live Data Received:", payload);
+
         
         if (!payload) {
           console.warn("⚠️ Empty payload received");
@@ -74,7 +74,7 @@ function initWebSocket() {
         // }
         
         // Forward to dashboard handler if available
-        if (window.BTSWebSocket.onData) {
+        if (window.BTSWebSocket.onData) {          
           window.BTSWebSocket.onData(data);
         } else {
           console.warn("⚠️ No dashboard handler registered");
