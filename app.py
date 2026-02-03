@@ -359,6 +359,16 @@ def send_result_to_plc(client, db, byte, bit, status):
     value = True if status == "PASS" else False
     # print(f"Sending to PLC: DB{db}.DBX{byte}.{bit} = {value}")
     # write_bool_to_plc(client, db, byte, bit, value)
+import math
+
+def sanitize_json(obj):
+    if isinstance(obj, dict):
+        return {k: sanitize_json(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitize_json(v) for v in obj]
+    if isinstance(obj, float) and math.isnan(obj):
+        return None
+    return obj
 
 def background_reader_thread():
     """
@@ -529,37 +539,42 @@ def background_reader_thread():
                     send_result_to_plc(None, None, None, None, final_status)
                     data["charge"] = {k: to_native(v) for k, v in data["charge"].items()}
                     data["discharge"] = {k: to_native(v) for k, v in data["discharge"].items()}
+                    data = sanitize_json(data)
+                    evaluated = sanitize_json(evaluated)
+                    payload = {
+                        "data_update": {
+                            "meta": {
+                                "battery_id": battery_id,
+                                "battery_type": battery_type,
+                                "test_type": test_type,
+                                "device_id": device_id,
+                                "device_channel": device_channel,
+                                "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
+                            },
+                            "results": data,
+                            "evaluated": evaluated,
+                            "final_status": final_status
+                        }
+                    }
 
-                    socketio.emit(
-                        "live_data",
-                        {"data_update":{
-                                "meta": {
-                                    "battery_id": battery_id,
-                                    "battery_type": battery_type,
-                                    "test_type": test_type,
-                                    "device_id": device_id,
-                                    "device_channel": device_channel,
-                                    "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
-                                },
-                                "results": data,
-                                "evaluated": evaluated,
-                                "final_status": final_status
-                            }}
-                    )
-                    logging.info(f"Data emitted: {data}")
-                    thresholds = load_thresholds()
-                    alerts = {}
-                    for key in data:
-                        if data[key] > thresholds.get(key, float('inf')):
-                            alerts[key] = f"{key} threshold exceeded!"
-                            logging.warning(f"{key} value {data[key]} exceeds threshold {thresholds[key]}")
+                    socketio.emit("live_data", payload)
+
                     
-                    socketio.emit("data_update", {"data": data, "alerts": alerts})
-                    logging.info(f"Data emitted: {data} with alerts: {alerts}")
+                    print(f"Data emitted to dashboard.{data}")
+                    logging.info(f"Data emitted: {data}")
+                    # thresholds = load_thresholds()
+                    # alerts = {}
+                    # for key in data:
+                    #     if data[key] > thresholds.get(key, float('inf')):
+                    #         alerts[key] = f"{key} threshold exceeded!"
+                    #         logging.warning(f"{key} value {data[key]} exceeds threshold {thresholds[key]}")
+                    
+                    # socketio.emit("data_update", {"data": data, "alerts": alerts})
+                    # logging.info(f"Data emitted: {data} with alerts: {alerts}")
                     
                     #  sending pass/fail status to PLC
-                    status = "PASS" if not alerts else "FAIL"
-                    logging.info(f"Test status for file {file}: {status}")
+                    # status = "PASS" if not alerts else "FAIL"
+                    # logging.info(f"Test status for file {file}: {status}")
                     
                     # Remove or archive processed file
                     # os.remove(os.path.join(base_path, file))
@@ -579,5 +594,5 @@ if __name__ == "__main__":
     reader_thread = threading.Thread(target=background_reader_thread)
     reader_thread.daemon = True
     reader_thread.start()
-    logging.info("Starting Flask SocketIO Server on port 5001...")
-    socketio.run(app, host="0.0.0.0", port=5001, debug=False, use_reloader=False)
+    logging.info("Starting Flask SocketIO Server on port 5002...")
+    socketio.run(app, host="0.0.0.0", port=5002, debug=False, use_reloader=False)

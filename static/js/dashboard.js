@@ -34,9 +34,6 @@ async function selectDevice(deviceId) {
     name: `Circuit ${i + 1}`,
     Status: "--",
     batteryId: "--", // Generate battery ID
-    startTime: null, // Will be set when collecting starts
-    StopTime: null,
-    CycleTime: null,
     data: {}
   }));
 
@@ -56,7 +53,7 @@ function renderGallery() {
     card.dataset.deviceId = circuit.deviceId;
     card.dataset.circuitId = circuit.circuitId;    
     
-    const units = ["mV","Ah", "V", "V", "V", "˚C", "˚C", "%" , "˚C"];
+    const units = ["mV","Ah", "V", "V", "V", "˚C", "˚C", "%" , "˚C","",""];
     card.innerHTML = `
       <header class="card-header">
         <h3 class="circuit-name">${circuit.name}</h3>
@@ -75,7 +72,7 @@ function renderGallery() {
 
 
       <div class="metrics">
-        ${["Cell_Deviation", "Capacity", "Pack_Voltage", "Max_cell_Voltage", "Min_cell_Voltage", "Max_cell_Temperature", "Min_Cell_Temperature", "SOC" , "Temp_Difference"].map(
+        ${["Ch_Capacity", "Ch_Voltage_Pack", "Ch_Voltage_Cell", "Ch_Cell_Deviation", "Ch_Delta_T","DCh_Capacity", "DCh_Voltage_Pack", "DCh_Voltage_Cell", "DCh_Cell_Deviation", "DCh_Delta_T_Max", "END_SOC" ].map(
           (m,i) => `
           <div class="metric">
             <span class="label">${m.charAt(0).toUpperCase() + m.slice(1)}</span>
@@ -256,18 +253,14 @@ async function handleCircuitAction(e, circuit) {
    6️⃣ Live Data Updates (from websocket.js)
    ============================================================ */
 function updateLiveCircuitData(payload) {
-  console.log(payload);
   
   // show the alert popup with whatever data is received in payload
   if (!payload) return;
-  if (payload.data_update.meta.device_id !== undefined && payload.data_update.meta.device_id === "1"){ 
-    loadmachine1();
-  }
-  else if (payload.data_update.meta.device_id !== undefined && payload.data_update.meta.device_id === "2"){
-    loadmachine2();
-  }
-  else if (payload.data_update.meta.device_id !== undefined && payload.data_update.meta.device_id === "3"){
-    loadmachine3();
+  // console.log(payload.data_update.meta.device_id, selectedDeviceId,"===", Number(payload.data_update.meta.device_id) !== selectedDeviceId);
+  console.log(payload);
+  
+  if (payload.data_update.meta.device_id !== undefined && Number(payload.data_update.meta.device_id) !== selectedDeviceId){ 
+    return;
   }
   // get the articles which have data-device-id and data-circuit-id == payload device_id and circuit_id
   const articles = document.querySelectorAll(`[data-device-id="${payload.data_update.meta.device_id}"][data-circuit-id="${payload.data_update.meta.device_channel}"]`);
@@ -284,44 +277,57 @@ function updateLiveCircuitData(payload) {
       statusEl.textContent = payload.data_update.final_status || "--";
       statusEl.className = `badge status ${payload.data_update.final_status ? payload.data_update.final_status.toLowerCase() : 'unknown'}`;
     }
+    ["Ch_Capacity", "Ch_Voltage_Pack", "Ch_Voltage_Cell", "Ch_Cell_Deviation", "Ch_Delta_T","DCh_Capacity", "DCh_Voltage_Pack", "DCh_Voltage_Cell", "DCh_Cell_Deviation", "DCh_Delta_T_Max", "END_SOC" ]
+    const capacity_el = article.querySelector(`#Ch_Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (capacity_el) {
+      capacity_el.textContent = payload.data_update.results.charge.Capacity !== undefined ? `${Number(payload.data_update.results.charge.Capacity).toFixed(4)}` : "--Ah";
+    }
+    const pack_voltage_el = article.querySelector(`#Ch_Voltage_Pack-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (pack_voltage_el) {
+      pack_voltage_el.textContent = payload.data_update.results.charge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Pack_Voltage).toFixed(4)} V` : "--V";
+    }
+    const max_cell_voltage_el = article.querySelector(`#Ch_Voltage_Cell-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (max_cell_voltage_el) {
+      max_cell_voltage_el.textContent = payload.data_update.results.charge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
+    }
     // update metrics
-    const cell_deviation_el = article.querySelector(`#Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    const cell_deviation_el = article.querySelector(`#Ch_Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
     if (cell_deviation_el) {
       // round to 4 decimal places
       const value = Number(payload.data_update.results.charge.Cell_Deviation).toFixed(4);
       cell_deviation_el.textContent = payload.data_update.results.charge.Cell_Deviation !== undefined ? `${value} mV` : "--mV";
     }
-    const capacity_el = article.querySelector(`#Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (capacity_el) {
-      capacity_el.textContent = payload.data_update.results.charge.Capacity !== undefined ? `${Number(payload.data_update.results.charge.Capacity).toFixed(4)}` : "--Ah";
+    const temp_difference_el = article.querySelector(`#Ch_Delta_T-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (temp_difference_el) {
+      temp_difference_el.textContent = payload.data_update.results.charge.temperature_difference !== undefined ? `${Number(payload.data_update.results.charge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
     }
-    const pack_voltage_el = article.querySelector(`#Pack_Voltage-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (pack_voltage_el) {
-      pack_voltage_el.textContent = payload.data_update.results.charge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Pack_Voltage).toFixed(4)} V` : "--V";
-    }
-    const max_cell_voltage_el = article.querySelector(`#Max_cell_Voltage-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (max_cell_voltage_el) {
-      max_cell_voltage_el.textContent = payload.data_update.results.charge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
-    }
-    const min_cell_voltage_el = article.querySelector(`#Min_cell_Voltage-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (min_cell_voltage_el) {
-      min_cell_voltage_el.textContent = payload.data_update.results.charge.Min_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Min_Cell_Voltage).toFixed(4)} V` : "--V";
-    }
-    const max_cell_temperature_el = article.querySelector(`#Max_cell_Temperature-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (max_cell_temperature_el) {
-      max_cell_temperature_el.textContent = payload.data_update.results.charge.Max_Cell_Temperature !== undefined ? `${Number(payload.data_update.results.charge.Max_Cell_Temperature).toFixed(4)} ˚C` : "--˚C";
-    }
-    const min_cell_temperature_el = article.querySelector(`#Min_Cell_Temperature-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (min_cell_temperature_el) {      
-      min_cell_temperature_el.textContent = payload.data_update.results.charge.Min_Cell_Temperature !== undefined ? `${Number(payload.data_update.results.charge.Min_Cell_Temperature).toFixed(4)} ˚C` : "--˚C";
-    }
-    const soc_el = article.querySelector(`#SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    const soc_el = article.querySelector(`#Ch_SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
     if (soc_el) {
       soc_el.textContent = payload.data_update.results.charge.SOC !== undefined ? `${Number(payload.data_update.results.charge.SOC).toFixed(4)} %` : "--%";
     }
-    const temp_difference_el = article.querySelector(`#Temp_Difference-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (temp_difference_el) {
-      temp_difference_el.textContent = payload.data_update.results.charge.temperature_difference !== undefined ? `${Number(payload.data_update.results.charge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
+    const discharge_capacity_el = article.querySelector(`#DCh_Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (discharge_capacity_el) {
+      discharge_capacity_el.textContent = payload.data_update.results.discharge.Capacity !== undefined ? `${Number(payload.data_update.results.discharge.Capacity).toFixed(4)}` : "--Ah";
+    }
+    const discharge_pack_voltage_el = article.querySelector(`#DCh_Voltage_Pack-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (discharge_pack_voltage_el) {
+      discharge_pack_voltage_el.textContent = payload.data_update.results.discharge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.discharge.Pack_Voltage).toFixed(4)} V` : "--V";
+    }
+    const discharge_max_cell_voltage_el = article.querySelector(`#DCh_Voltage_Cell-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (discharge_max_cell_voltage_el) {
+      discharge_max_cell_voltage_el.textContent = payload.data_update.results.discharge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.discharge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
+    }
+    const discharge_cell_deviation_el = article.querySelector(`#DCh_Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (discharge_cell_deviation_el) {
+      discharge_cell_deviation_el.textContent = payload.data_update.results.discharge.Cell_Deviation !== undefined ? `${Number(payload.data_update.results.discharge.Cell_Deviation).toFixed(4)} mV` : "--mV";
+    }
+    const discharge_temp_difference_el = article.querySelector(`#DCh_Delta_T_Max-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (discharge_temp_difference_el) {
+      discharge_temp_difference_el.textContent = payload.data_update.results.discharge.temperature_difference !== undefined ? `${Number(payload.data_update.results.discharge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
+    }
+    const end_soc_el = article.querySelector(`#END_SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+    if (end_soc_el) {
+      end_soc_el.textContent = payload.data_update.results.discharge.End_SOC !== undefined ? `${Number(payload.data_update.results.discharge.End_SOC).toFixed(4)} %` : "--%";
     }
 
   });

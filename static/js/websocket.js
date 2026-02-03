@@ -17,7 +17,7 @@ window.BTSWebSocket = {
 function initWebSocket() {
   try {
     // Connect to current origin (Flask server)
-    socket = io.connect("http://127.0.0.1:5001");
+    socket = io.connect("http://127.0.0.1:5002");
 
     window.BTSWebSocket.socket = socket;
 
