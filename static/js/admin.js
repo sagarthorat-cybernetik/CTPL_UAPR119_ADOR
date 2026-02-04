@@ -91,6 +91,9 @@ const DEFAULT_HEADERS = {
   "Max_Cell_Temperature": "Max Cell Temperature (C)",
   "Min_Cell_Temperature": "Min Cell Temperature (C)",
   "SOC": "SOC (%)",
+  "End_SOC": "End SOC (%)",
+  "HRD": "HRD (mOhm)",
+  "HRC": "HRC (mOhm)",
   "Temperature_Difference": "Temp Difference ∆T (Manual)",
   "Sheet_Name_Cell_Deviation": "1",
   "Sheet_Name_Capacity": "1",
@@ -100,7 +103,10 @@ const DEFAULT_HEADERS = {
   "Sheet_Name_Max_Cell_Temperature": "1",
   "Sheet_Name_Min_Cell_Temperature": "1",
   "Sheet_Name_SOC": "1",
-  "Sheet_Name_Temperature_Difference": "1"
+  "Sheet_Name_Temperature_Difference": "1",
+  "Sheet_Name_END_SOC": "1",
+  "Sheet_Name_HRD": "1",
+  "Sheet_Name_HRC": "1"
 };
 
 /* ============================================================
@@ -174,6 +180,7 @@ function populateForm(data) {
       return;
     }
     try {
+          populateHeadersForm(finaldata["Headers"]);
       const testtypeSelect = document.getElementById("testTypeSelect");
       const selectedTestType = testtypeSelect.value;
       const modelData = data[selectedModel];

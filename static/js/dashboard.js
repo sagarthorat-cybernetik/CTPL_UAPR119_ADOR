@@ -22,23 +22,36 @@ let circuitChartData = {}; // Store chart data for each circuit
 async function selectDevice(deviceId) {
   selectedDeviceId = deviceId;
   let devicecount=0;
-  if (deviceId && deviceId == "1") {
-    devicecount = 2;
-  } else {
-    devicecount =16;
-  }
-  // Demo: 16 circuits for now
-  circuits = Array.from({ length: devicecount }, (_, i) => ({
-    deviceId: deviceId,
-    circuitId: i + 1,
-    name: `Circuit ${i + 1}`,
-    Status: "--",
-    batteryId: "--", // Generate battery ID
-    data: {}
-  }));
+  if (deviceId && (deviceId == "1" || deviceId == "5")) {
+    devicecount = 16;
+      // Demo: 16 circuits for now
+      circuits = Array.from({ length: devicecount }, (_, i) => ({
+        deviceId: deviceId,
+        circuitId: i + 1,
+        name: `Circuit ${i + 1}`,
+        Status: "--",
+        batteryId: "--", // Generate battery ID
+        data: {}
+      }));
 
-//   renderCircuitList();
-  renderGallery();
+    //   renderCircuitList();
+      renderGallery();
+  } else {
+    devicecount =2;
+    // Demo: 16 circuits for now
+    circuits = Array.from({ length: devicecount }, (_, i) => ({
+      deviceId: deviceId,
+      circuitId: i + 1,
+      name: `Circuit ${i + 1}`,
+      Status: "--",
+      batteryId: "--", // Generate battery ID
+      data: {}
+    }));
+
+    //   renderCircuitList();
+    renderGalleryHRD_HRC();
+  }
+
 }
 
 
@@ -95,10 +108,46 @@ function renderGallery() {
     });
   });
 }
+function renderGalleryHRD_HRC() {
+  gallery.innerHTML = "";
+  circuits.forEach((circuit) => {
+    const card = document.createElement("article");
+    card.classList.add("circuit-card");
+    card.dataset.deviceId = circuit.deviceId;
+    card.dataset.circuitId = circuit.circuitId;
+    const units = ["",""];
+    card.innerHTML = `
+      <header class="card-header">
+        <h3 class="circuit-name">${circuit.name}</h3>
+        <div class="card-controls">
+          <div class="action-controls">
+          </div>
+        </div>
+      </header>
+          <div class="badges">
+            <span class="badge battery-id" id="battery-id-${circuit.deviceId}-${circuit.circuitId}">
+                ${circuit.batteryId}
+            </span>
+            <span class= "badge status ${circuit.Status.toLowerCase()}" id="status-${circuit.deviceId}-${circuit.circuitId}"> ${circuit.Status} </span>
+          </div>
+      <div class="metrics">
+        ${["HRC", "HRD"].map(
+          (m,i) => `
+          <div class="metric">
+            <span class="label">${m.charAt(0).toUpperCase() + m.slice(1)}</span>
+            <span class="value" id="${m}-${circuit.deviceId}-${circuit.circuitId}">--${units[i]}</span>
+          </div>
+        `
+        ).join("")}
+      </div>
+    `;
+    gallery.appendChild(card);
+  });
+}
 
 function loadmachine1(){
   current_machine="Machine 1";
-  selectDevice(1);
+  selectDevice(2);
   document.getElementById("current-machine").innerText="HRD/HRC";
   // hide machine 1 button and show others
 
@@ -106,14 +155,14 @@ function loadmachine1(){
 
 function loadmachine2(){
   current_machine="Machine 2";
-  selectDevice(2);
+  selectDevice(1);
   document.getElementById("current-machine").innerText=current_machine;
   // hide machine 2 button and show others
 }
 
 function loadmachine3(){
   current_machine="Machine 3";
-  selectDevice(3);
+  selectDevice(5);
   document.getElementById("current-machine").innerText=current_machine;
   // hide machine 3 button and show others
 }
@@ -262,77 +311,103 @@ function updateLiveCircuitData(payload) {
   if (payload.data_update.meta.device_id !== undefined && Number(payload.data_update.meta.device_id) !== selectedDeviceId){ 
     return;
   }
-  // get the articles which have data-device-id and data-circuit-id == payload device_id and circuit_id
-  const articles = document.querySelectorAll(`[data-device-id="${payload.data_update.meta.device_id}"][data-circuit-id="${payload.data_update.meta.device_channel}"]`);
+  if (Number(payload.data_update.meta.device_id) === 1 || Number(payload.data_update.meta.device_id) === 5){
+    // get the articles which have data-device-id and data-circuit-id == payload device_id and circuit_id
+    const articles = document.querySelectorAll(`[data-device-id="${payload.data_update.meta.device_id}"][data-circuit-id="${payload.data_update.meta.device_channel}"]`);
 
-  articles.forEach((article) => {
-    // update battery id
-    const batteryIdEl = article.querySelector(`#battery-id-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (batteryIdEl) {
-      batteryIdEl.textContent = payload.data_update.meta.battery_id || "--";
-    }
-    // update status
-    const statusEl = article.querySelector(`#status-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (statusEl) {
-      statusEl.textContent = payload.data_update.final_status || "--";
-      statusEl.className = `badge status ${payload.data_update.final_status ? payload.data_update.final_status.toLowerCase() : 'unknown'}`;
-    }
-    ["Ch_Capacity", "Ch_Voltage_Pack", "Ch_Voltage_Cell", "Ch_Cell_Deviation", "Ch_Delta_T","DCh_Capacity", "DCh_Voltage_Pack", "DCh_Voltage_Cell", "DCh_Cell_Deviation", "DCh_Delta_T_Max", "END_SOC" ]
-    const capacity_el = article.querySelector(`#Ch_Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (capacity_el) {
-      capacity_el.textContent = payload.data_update.results.charge.Capacity !== undefined ? `${Number(payload.data_update.results.charge.Capacity).toFixed(4)}` : "--Ah";
-    }
-    const pack_voltage_el = article.querySelector(`#Ch_Voltage_Pack-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (pack_voltage_el) {
-      pack_voltage_el.textContent = payload.data_update.results.charge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Pack_Voltage).toFixed(4)} V` : "--V";
-    }
-    const max_cell_voltage_el = article.querySelector(`#Ch_Voltage_Cell-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (max_cell_voltage_el) {
-      max_cell_voltage_el.textContent = payload.data_update.results.charge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
-    }
-    // update metrics
-    const cell_deviation_el = article.querySelector(`#Ch_Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (cell_deviation_el) {
-      // round to 4 decimal places
-      const value = Number(payload.data_update.results.charge.Cell_Deviation).toFixed(4);
-      cell_deviation_el.textContent = payload.data_update.results.charge.Cell_Deviation !== undefined ? `${value} mV` : "--mV";
-    }
-    const temp_difference_el = article.querySelector(`#Ch_Delta_T-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (temp_difference_el) {
-      temp_difference_el.textContent = payload.data_update.results.charge.temperature_difference !== undefined ? `${Number(payload.data_update.results.charge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
-    }
-    const soc_el = article.querySelector(`#Ch_SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (soc_el) {
-      soc_el.textContent = payload.data_update.results.charge.SOC !== undefined ? `${Number(payload.data_update.results.charge.SOC).toFixed(4)} %` : "--%";
-    }
-    const discharge_capacity_el = article.querySelector(`#DCh_Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (discharge_capacity_el) {
-      discharge_capacity_el.textContent = payload.data_update.results.discharge.Capacity !== undefined ? `${Number(payload.data_update.results.discharge.Capacity).toFixed(4)}` : "--Ah";
-    }
-    const discharge_pack_voltage_el = article.querySelector(`#DCh_Voltage_Pack-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (discharge_pack_voltage_el) {
-      discharge_pack_voltage_el.textContent = payload.data_update.results.discharge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.discharge.Pack_Voltage).toFixed(4)} V` : "--V";
-    }
-    const discharge_max_cell_voltage_el = article.querySelector(`#DCh_Voltage_Cell-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (discharge_max_cell_voltage_el) {
-      discharge_max_cell_voltage_el.textContent = payload.data_update.results.discharge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.discharge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
-    }
-    const discharge_cell_deviation_el = article.querySelector(`#DCh_Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (discharge_cell_deviation_el) {
-      discharge_cell_deviation_el.textContent = payload.data_update.results.discharge.Cell_Deviation !== undefined ? `${Number(payload.data_update.results.discharge.Cell_Deviation).toFixed(4)} mV` : "--mV";
-    }
-    const discharge_temp_difference_el = article.querySelector(`#DCh_Delta_T_Max-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (discharge_temp_difference_el) {
-      discharge_temp_difference_el.textContent = payload.data_update.results.discharge.temperature_difference !== undefined ? `${Number(payload.data_update.results.discharge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
-    }
-    const end_soc_el = article.querySelector(`#END_SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
-    if (end_soc_el) {
-      end_soc_el.textContent = payload.data_update.results.discharge.End_SOC !== undefined ? `${Number(payload.data_update.results.discharge.End_SOC).toFixed(4)} %` : "--%";
-    }
+    articles.forEach((article) => {
+      // update battery id
+      const batteryIdEl = article.querySelector(`#battery-id-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (batteryIdEl) {
+        batteryIdEl.textContent = payload.data_update.meta.battery_id || "--";
+      }
+      // update status
+      const statusEl = article.querySelector(`#status-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (statusEl) {
+        statusEl.textContent = payload.data_update.final_status || "--";
+        statusEl.className = `badge status ${payload.data_update.final_status ? payload.data_update.final_status.toLowerCase() : 'unknown'}`;
+      }
+      ["Ch_Capacity", "Ch_Voltage_Pack", "Ch_Voltage_Cell", "Ch_Cell_Deviation", "Ch_Delta_T","DCh_Capacity", "DCh_Voltage_Pack", "DCh_Voltage_Cell", "DCh_Cell_Deviation", "DCh_Delta_T_Max", "END_SOC" ]
+      const capacity_el = article.querySelector(`#Ch_Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (capacity_el) {
+        capacity_el.textContent = payload.data_update.results.charge.Capacity !== undefined ? `${Number(payload.data_update.results.charge.Capacity).toFixed(4)}` : "--Ah";
+      }
+      const pack_voltage_el = article.querySelector(`#Ch_Voltage_Pack-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (pack_voltage_el) {
+        pack_voltage_el.textContent = payload.data_update.results.charge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Pack_Voltage).toFixed(4)} V` : "--V";
+      }
+      const max_cell_voltage_el = article.querySelector(`#Ch_Voltage_Cell-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (max_cell_voltage_el) {
+        max_cell_voltage_el.textContent = payload.data_update.results.charge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
+      }
+      // update metrics
+      const cell_deviation_el = article.querySelector(`#Ch_Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (cell_deviation_el) {
+        // round to 4 decimal places
+        const value = Number(payload.data_update.results.charge.Cell_Deviation).toFixed(4);
+        cell_deviation_el.textContent = payload.data_update.results.charge.Cell_Deviation !== undefined ? `${value} mV` : "--mV";
+      }
+      const temp_difference_el = article.querySelector(`#Ch_Delta_T-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (temp_difference_el) {
+        temp_difference_el.textContent = payload.data_update.results.charge.temperature_difference !== undefined ? `${Number(payload.data_update.results.charge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
+      }
+      const soc_el = article.querySelector(`#Ch_SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (soc_el) {
+        soc_el.textContent = payload.data_update.results.charge.SOC !== undefined ? `${Number(payload.data_update.results.charge.SOC).toFixed(4)} %` : "--%";
+      }
+      const discharge_capacity_el = article.querySelector(`#DCh_Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (discharge_capacity_el) {
+        discharge_capacity_el.textContent = payload.data_update.results.discharge.Capacity !== undefined ? `${Number(payload.data_update.results.discharge.Capacity).toFixed(4)}` : "--Ah";
+      }
+      const discharge_pack_voltage_el = article.querySelector(`#DCh_Voltage_Pack-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (discharge_pack_voltage_el) {
+        discharge_pack_voltage_el.textContent = payload.data_update.results.discharge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.discharge.Pack_Voltage).toFixed(4)} V` : "--V";
+      }
+      const discharge_max_cell_voltage_el = article.querySelector(`#DCh_Voltage_Cell-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (discharge_max_cell_voltage_el) {
+        discharge_max_cell_voltage_el.textContent = payload.data_update.results.discharge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.discharge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
+      }
+      const discharge_cell_deviation_el = article.querySelector(`#DCh_Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (discharge_cell_deviation_el) {
+        discharge_cell_deviation_el.textContent = payload.data_update.results.discharge.Cell_Deviation !== undefined ? `${Number(payload.data_update.results.discharge.Cell_Deviation).toFixed(4)} mV` : "--mV";
+      }
+      const discharge_temp_difference_el = article.querySelector(`#DCh_Delta_T_Max-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (discharge_temp_difference_el) {
+        discharge_temp_difference_el.textContent = payload.data_update.results.discharge.temperature_difference !== undefined ? `${Number(payload.data_update.results.discharge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
+      }
+      const end_soc_el = article.querySelector(`#END_SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (end_soc_el) {
+        end_soc_el.textContent = payload.data_update.results.discharge.End_SOC !== undefined ? `${Number(payload.data_update.results.discharge.End_SOC).toFixed(4)} %` : "--%";
+      }
 
-  });
-  
-  
+    });
+  }
+  else if (Number(payload.data_update.meta.device_id) === 2){
+    // get the articles which have data-device-id and data-circuit-id == payload device_id and circuit_id
+    const articles = document.querySelectorAll(`[data-device-id="${payload.data_update.meta.device_id}"][data-circuit-id="${payload.data_update.meta.device_channel}"]`);
+    articles.forEach((article) => {
+      // update battery id
+      const batteryIdEl = article.querySelector(`#battery-id-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (batteryIdEl) {
+        batteryIdEl.textContent = payload.data_update.meta.battery_id || "--";
+      }
+      // update status
+      const statusEl = article.querySelector(`#status-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (statusEl) {
+        statusEl.textContent = payload.data_update.final_status || "--";
+        statusEl.className = `badge status ${payload.data_update.final_status ? payload.data_update.final_status.toLowerCase() : 'unknown'}`;
+      }
+      // update metrics
+      const hrc_el = article.querySelector(`#HRC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (hrc_el) {
+        hrc_el.textContent = payload.data_update.results.charge.HRC !== undefined ? `${Number(payload.data_update.results.charge.HRC).toFixed(4)}` : "--";
+      }
+      const hrd_el = article.querySelector(`#HRD-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
+      if (hrd_el) {
+        hrd_el.textContent = payload.data_update.results.discharge.HRD !== undefined ? `${Number(payload.data_update.results.discharge.HRD).toFixed(4)}` : "--";
+      }
+    });
+  }
 }
 
 /* ============================================================
