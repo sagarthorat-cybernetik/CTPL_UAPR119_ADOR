@@ -147,7 +147,7 @@ function renderGalleryHRD_HRC() {
 
 function loadmachine1(){
   current_machine="Machine 1";
-  selectDevice(2);
+  selectDevice(6);
   document.getElementById("current-machine").innerText="HRD/HRC";
   // hide machine 1 button and show others
 

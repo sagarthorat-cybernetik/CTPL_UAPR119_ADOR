@@ -76,13 +76,13 @@ DEFAULT_THRESHOLDS = {
 }
 PLC_REGISTERS = {
     "1": {
-        "start":1
+        "start":60
     },
-    "2": {
-        "start":17
+    "5": {
+        "start":44
     },
-    "3": {
-        "start":33
+    "6": {
+        "start":42
     }
 }
 API_BASE_URL = "http://localhost:5000"  # For simulated device API
@@ -104,7 +104,7 @@ logging.info("===== BTS Monitoring System Started =====")
 file_lock = threading.Lock()
 
 def connect_plc():
-    plc = ModbusClient(host="192.168.0.100", port=502, auto_open=True)
+    plc = ModbusClient(host="192.168.205.161", port=502, auto_open=True)
     return plc
 
 def load_thresholds():
@@ -374,14 +374,18 @@ def send_result_to_plc(device, circuit, status):
     # PASS = 1, FAIL = 0
     # check plc is connected or not
     plc = connect_plc()
-    if not plc.is_open():
-        print("PLC not connected.")
-        return
+
+    # if not plc.is_open:
+    #     print("PLC not connected.")
+    #     return
     
     value = 1 if status == "PASS" else 2
-    print(f"Sending to PLC: {int(PLC_REGISTERS[device]['start'])+int(circuit)} = {value}")
+    print(f"PLC Connection Status: {'Connected' if plc.is_open else 'Not Connected'}")
+    print(f"Device: {device}, Circuit: {circuit}, Status: {status}, Value to Send: {value}")
+    print(f"plc registers: {PLC_REGISTERS}")
+    print(f"Sending to PLC: {int(PLC_REGISTERS[device]['start'])+(int(circuit)-1)} = {value}")
     try:
-        plc.write_single_register(int(PLC_REGISTERS[device]['start'])+int(circuit), value)
+        plc.write_single_register(int(PLC_REGISTERS[device]['start'])+(int(circuit)-1), value)
         print("Data sent to PLC successfully.")
     except Exception as e:
         print(f"Error sending data to PLC: {e}")
@@ -393,12 +397,14 @@ def send_result_to_plc(device, circuit, status):
   # Database connection
 # database connection string for sql server mssql+pyodbc://dbuserz03:CTPL%40123123@192.168.200.24:1433/ZONE03_REPORTS?driver=ODBC+Driver+17+for+SQL+Server
 DB_CONNECTION_STRING = (
-    "DRIVER={ODBC Driver 17 for SQL Server};"
+    "DRIVER={ODBC Driver 18 for SQL Server};"
     "SERVER=192.168.200.24,1433;"
     "DATABASE=ZONE03_REPORTS;"
     "UID=dbuserz03;"
-    "PWD=CTPL@123"
+    "PWD=CTPL@123123;"
+    "TrustServerCertificate=yes;"
 )
+
 def connect_db():
         try:
             conn = pyodbc.connect(DB_CONNECTION_STRING)
@@ -418,21 +424,36 @@ def send_result_to_database(test_type, data):
             cursor = conn.cursor()
             # Insert data into the database
             insert_query = """
-                INSERT INTO TestResults (BatterySerialNo, CellDeviation, Capacity, PackVoltage, MaxCellVoltage, MinCellVoltage, MaxCellTemperature, MinCellTemperature, SOC, TestType)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO batterytestresult ( Date_Time , Serial_Number, Channel_No, Machine_No, Testing_Type, CH_Capacity_Ah, CH_Pack_Voltage_V, CH_HCV,CH_Cell_Deviation,CH_Temp, CH_Temp_Deviation, DCH_Capacity_Ah, DCH_Pack_Voltage_V, DCH_LCV, DCH_Cell_Deviation, DCH_Temp, DCH_Temp_Deviation, END_SOC, STATUS, Step_Timing,Cycle_Time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """
-            cursor.execute(insert_query, (
-                data["Battery Serial No"],
-                data["charge"]["Cell_Deviation"],
-                data["charge"]["Capacity"],
-                data["charge"]["Pack_Voltage"],
-                data["charge"]["Max_Cell_Voltage"],
-                data["charge"]["Min_Cell_Voltage"],
-                data["charge"]["Max_Cell_Temperature"],
-                data["charge"]["Min_Cell_Temperature"],
-                data["charge"]["SOC"],
-                test_type
-            ))
+            cursor.execute(
+                insert_query, 
+                (
+                datetime.now(),
+                data["data_update"]["meta"]["battery_id"],
+                data["data_update"]["meta"]["device_channel"],
+                data["data_update"]["meta"]["device_id"],
+                data["data_update"]["meta"]["test_type"],
+                data["data_update"]["results"]["charge"]["Capacity"],
+                data["data_update"]["results"]["charge"]["Pack_Voltage"],
+                data["data_update"]["results"]["charge"]["Max_Cell_Voltage"],
+                data["data_update"]["results"]["charge"]["Cell_Deviation"],
+                data["data_update"]["results"]["charge"]["Max_Cell_Temperature"],
+                data["data_update"]["results"]["charge"]["temperature_difference"],
+                data["data_update"]["results"]["discharge"]["Capacity"],
+                data["data_update"]["results"]["discharge"]["Pack_Voltage"],
+                data["data_update"]["results"]["discharge"]["Min_Cell_Voltage"],
+                data["data_update"]["results"]["discharge"]["Cell_Deviation"],
+                data["data_update"]["results"]["discharge"]["Max_Cell_Temperature"],
+                data["data_update"]["results"]["discharge"]["temperature_difference"],
+                data["data_update"]["results"]["discharge"]["End_SOC"],
+                1 if data["data_update"]["final_status"] == "PASS" else 2,
+                0,
+                0
+                # data["data_update"]["results"]["charge"]["Step_Timing"] ,
+                # data["data_update"]["results"]["charge"]["Cycle_Time"]
+            )
+            )
             conn.commit()
             cursor.close()
             conn.close()
@@ -550,8 +571,8 @@ def background_reader_thread():
                     # Extract metadata from file name
                     parts = file.split("_")
                     date_str = parts[0]
-                    device_channel = parts[1].split("-")[0]
-                    device_id = parts[1].split("-")[1]
+                    device_id = parts[1].split("-")[0]
+                    device_channel = parts[1].split("-")[1]
                     battery_id = parts[2].replace(".xlsx", "")
                     date_time = datetime.strptime(date_str, "%Y-%m-%d %H-%M-%S")
                     file_size = os.path.getsize(os.path.join(base_path, file))
@@ -655,15 +676,9 @@ def background_reader_thread():
                                 print("Excel read FAILED:", repr(e))
                                 raise
                             
-                        # print("Extracted Data:", data)
                         thresholds_config = load_thresholds()
-                        # print("Loaded Thresholds:", thresholds_config)
                         threshold_block = thresholds_config["Thresholds"][battery_type][test_type]
-                        # print("Using Threshold Block:", threshold_block)
-                        print("Evaluating charge thresholds...")
-                        # data = data["charge"] if test_type == "CDC" else data["discharge"]
                         overall_pass, evaluated = evaluate_thresholds(data, threshold_block)
-                        print("Evaluation Results:", evaluated, "Overall Pass:", overall_pass)
                         final_status = "PASS" if overall_pass else "FAIL"
 
                         data["charge"] = {k: to_native(v) for k, v in data["charge"].items()}
@@ -687,7 +702,11 @@ def background_reader_thread():
                         }
 
                         socketio.emit("live_data", payload)
-                        print(f"Data emitted to dashboard.{data}")
+                        # print(f"Data emitted to dashboard.{data}")
+                        # print(f"device_id: {device_id}")
+                        # print(f"device_channel: {device_channel}")
+                        # print(f"final_status: {final_status}")
+                        print(f"sending result to plc... Device: {device_id}, Channel: {device_channel}, Status: {final_status}")
                         send_result_to_plc(device_id, device_channel, final_status)
                         send_result_to_database(test_type, payload)
                         logging.info(f"Data emitted: {data}")

@@ -156,7 +156,6 @@ function populateForm(data) {
 
   // add the event listener to dropdown to repopulate the form on change
   dropdown.addEventListener("change", (e) => {
-    populateHeadersForm(finaldata["Headers"]);
     const selectedModel = e.target.value;
     // console.log(selectedModel);
     
@@ -180,7 +179,7 @@ function populateForm(data) {
       return;
     }
     try {
-          populateHeadersForm(finaldata["Headers"]);
+      populateHeadersForm(finaldata["Headers"]);
       const testtypeSelect = document.getElementById("testTypeSelect");
       const selectedTestType = testtypeSelect.value;
       const modelData = data[selectedModel];
