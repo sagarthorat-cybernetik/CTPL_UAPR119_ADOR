@@ -11,6 +11,8 @@ from flask import Flask, request, jsonify, render_template
 from flask_socketio import SocketIO, emit
 import jwt
 import requests
+from pyModbusTCP.client import ModbusClient
+import pyodbc
 
 from core.utils import json_response
 # from dbc_simulator import DBCDataSimulator
@@ -72,6 +74,17 @@ DEFAULT_THRESHOLDS = {
         "Temperature_Difference_max": 15,
     }
 }
+PLC_REGISTERS = {
+    "1": {
+        "start":1
+    },
+    "2": {
+        "start":17
+    },
+    "3": {
+        "start":33
+    }
+}
 API_BASE_URL = "http://localhost:5000"  # For simulated device API
 # Initialize with your DBC file
 # sim = DBCDataSimulator("D:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\DBC_2.3kWh.dbc", db_folder=STORED_DBC_PATH, interval=1)
@@ -90,6 +103,9 @@ logging.basicConfig(filename=LOG_FILE, level=logging.INFO,
 logging.info("===== BTS Monitoring System Started =====")
 file_lock = threading.Lock()
 
+def connect_plc():
+    plc = ModbusClient(host="192.168.0.100", port=502, auto_open=True)
+    return plc
 
 def load_thresholds():
     try:
@@ -354,11 +370,119 @@ def evaluate_thresholds(data, thresholds):
                 overall_pass = False
     return overall_pass, results
 
-def send_result_to_plc(client, db, byte, bit, status):
+def send_result_to_plc(device, circuit, status):
     # PASS = 1, FAIL = 0
-    value = True if status == "PASS" else False
-    # print(f"Sending to PLC: DB{db}.DBX{byte}.{bit} = {value}")
-    # write_bool_to_plc(client, db, byte, bit, value)
+    # check plc is connected or not
+    plc = connect_plc()
+    if not plc.is_open():
+        print("PLC not connected.")
+        return
+    
+    value = 1 if status == "PASS" else 2
+    print(f"Sending to PLC: {int(PLC_REGISTERS[device]['start'])+int(circuit)} = {value}")
+    try:
+        plc.write_single_register(int(PLC_REGISTERS[device]['start'])+int(circuit), value)
+        print("Data sent to PLC successfully.")
+    except Exception as e:
+        print(f"Error sending data to PLC: {e}")
+
+
+##--------------------------------------------------------
+##  Start Send Result to Database
+##--------------------------------------------------------
+  # Database connection
+# database connection string for sql server mssql+pyodbc://dbuserz03:CTPL%40123123@192.168.200.24:1433/ZONE03_REPORTS?driver=ODBC+Driver+17+for+SQL+Server
+DB_CONNECTION_STRING = (
+    "DRIVER={ODBC Driver 17 for SQL Server};"
+    "SERVER=192.168.200.24,1433;"
+    "DATABASE=ZONE03_REPORTS;"
+    "UID=dbuserz03;"
+    "PWD=CTPL@123"
+)
+def connect_db():
+        try:
+            conn = pyodbc.connect(DB_CONNECTION_STRING)
+            return conn
+        except Exception as e:
+            print(f"Database connection error: {e}")
+            return None
+
+def send_result_to_database(test_type, data):
+    try:
+        print(f"Preparing to insert data into database for test type: {test_type} with data: {data}")
+        if test_type == "CDC" or test_type == "Sanity":
+            conn = connect_db()
+            if conn is None:
+                print("Failed to connect to database.")
+                return
+            cursor = conn.cursor()
+            # Insert data into the database
+            insert_query = """
+                INSERT INTO TestResults (BatterySerialNo, CellDeviation, Capacity, PackVoltage, MaxCellVoltage, MinCellVoltage, MaxCellTemperature, MinCellTemperature, SOC, TestType)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            cursor.execute(insert_query, (
+                data["Battery Serial No"],
+                data["charge"]["Cell_Deviation"],
+                data["charge"]["Capacity"],
+                data["charge"]["Pack_Voltage"],
+                data["charge"]["Max_Cell_Voltage"],
+                data["charge"]["Min_Cell_Voltage"],
+                data["charge"]["Max_Cell_Temperature"],
+                data["charge"]["Min_Cell_Temperature"],
+                data["charge"]["SOC"],
+                test_type
+            ))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            print("Data inserted into database successfully.")
+        else:
+            # hrd/hrc
+            """
+            SELECT TOP (1000) [DateTime]
+                ,[Shift_User]
+                ,[OperationalShift]
+                ,[ModuleBarcodeData]
+                ,[HRD_Test_Spare01]
+                ,[HRD_Test_Spare02]
+                ,[Status]
+                ,[HRD_Test_Spare04]
+                ,[HRD_Test_Spare05]
+                ,[HRD_Test_Spare06]
+                ,[CycleTime]
+            FROM [ZONE03_REPORTS].[dbo].[HRD_Test_Stn]
+            from this table we will insert only the ModuleBarcodeData, HRD_Test_Spare01 as HRD, HRD_Test_Spare02 as HRC and Status as Pass/Fail and DateTime for the timestamp and CycleTime as cycletime. and we can use Shift_User and OperationalShift for the user and shift details if needed in future.
+            """
+            # insert for HRD and HRC
+            conn = connect_db()
+            if conn is None:
+                print("Failed to connect to database.")
+                return
+            cursor = conn.cursor()
+            insert_query = """
+                INSERT INTO HRD_Test_Stn (DateTime, ModuleBarcodeData, HRD_Test_Spare01, HRD_Test_Spare02, Status)
+                VALUES (?, ?, ?, ?, ?)
+            """
+            cursor.execute(insert_query, (
+                datetime.now(),
+                data["data_update"]["meta"]["battery_id"],
+                data["data_update"]["results"]["discharge"]["HRD"],
+                data["data_update"]["results"]["charge"]["HRC"],
+                1 if data["data_update"]["final_status"] == "PASS" else 0
+            ))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            print("HRD/HRC Data inserted into database successfully.")
+
+    except Exception as e:
+        print(f"Error inserting data into database: {e}")
+
+##--------------------------------------------------------
+## End Send Result to Database
+##--------------------------------------------------------
+
 import math
 
 def sanitize_json(obj):
@@ -430,155 +554,211 @@ def background_reader_thread():
                     device_id = parts[1].split("-")[1]
                     battery_id = parts[2].replace(".xlsx", "")
                     date_time = datetime.strptime(date_str, "%Y-%m-%d %H-%M-%S")
+                    file_size = os.path.getsize(os.path.join(base_path, file))
                     if battery_id.startswith("M"):
-                        test_type = "CDC"
+                        if file_size < 5000000:  # less than 5MB
+                            test_type = "Sanity"
+                        else:
+                            test_type = "CDC"
                     else:
                         test_type = "HRD"
-                    
-                    if test_type == "CDC":
+                    print(f"filename:{file}, filesize: {file_size} bytes, Test Type: {test_type}")
+                    if test_type == "CDC" or test_type == "Sanity":
                         battery_type = battery_id[1] + battery_id[2]  # e.g., L2
                     else:
                         battery_type = battery_id[2] + battery_id[3]  # e.g., K5
+                        
                     # print(f"fileName : {file},DateTime: {date_time}, Device Channel: {device_channel}, Battery ID: {battery_id}, Test Type: {test_type}, Battery Type: {battery_type}")
                     #  reading data from the file
                     safe_file = " ".join(file.split())
                     file_path = os.path.join(base_path, safe_file)
+                    if test_type == "Sanity" or test_type == "CDC":
+                        with file_lock:
+                            try:
+                                with open(os.path.join(BASE_DIR, "config.json"), "r") as cf:
+                                    config = json.load(cf)
 
-                    with file_lock:
-                        try:
-                            with open(os.path.join(BASE_DIR, "config.json"), "r") as cf:
-                                config = json.load(cf)
+                                headers = config["Headers"]
+                                headers = headers[battery_type]
+                                is_standerd = headers[test_type]["non_standard"]
+                                headers = headers[test_type]['header']
+                                # print("Using test type", test_type ,"headers:", headers)
+                                # print("Using headers:", headers)
+                                # extract the unique sheetNO and read only those sheets
+                                unique_sheets = set()
+                                for key, value in headers.items():
+                                    if key.startswith("Sheet_Name_"):
+                                        unique_sheets.add(int(value))
+                                sheets_data = {}
+                                for sheet in unique_sheets:
+                                    sheets_data[sheet] = read_sheet(file_path, int(sheet))
+                                    
+                                # print("here")
+                                # print("headers:", headers)
+                                # print("sheets_data:", headers["Sheet_Name_Max_Cell_Voltage"])
+                                # print("col", headers["Max_Cell_Voltage"])
+                                # print("step no:", config["Thresholds"][battery_type][test_type]["charge"]["Max_Cell_Voltage_step"])
+                                # print(sheets_data)    
+                                # print(sheets_data[int(headers["Sheet_Name_Cell_Deviation"])])   
+                                data = {
+                                    "Battery Serial No": battery_id,
+                                    "charge":{
+                                        "Cell_Deviation": safe_max(df=sheets_data[int(headers["Sheet_Name_Cell_Deviation"])], col=headers["Cell_Deviation"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["cell_deviation_step"]) if is_standerd else max_temp_diff(df=sheets_data[int(headers["Sheet_Name_Cell_Deviation"])], min_col=headers["Min_Cell_Temperature"], max_col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["cell_deviation_step"]),
 
-                            headers = config["Headers"]
-                            headers = headers[battery_type]
-                            is_standerd = headers[test_type]["non_standard"]
-                            headers = headers[test_type]['header']
-                            # print("Using test type", test_type ,"headers:", headers)
-                            # print("Using headers:", headers)
-                            # extract the unique sheetNO and read only those sheets
-                            unique_sheets = set()
-                            for key, value in headers.items():
-                                if key.startswith("Sheet_Name_"):
-                                    unique_sheets.add(int(value))
-                            sheets_data = {}
-                            for sheet in unique_sheets:
-                                sheets_data[sheet] = read_sheet(file_path, int(sheet))
-                                 
-                            # print("here")
-                            # print("headers:", headers)
-                            # print("sheets_data:", headers["Sheet_Name_Max_Cell_Voltage"])
-                            # print("col", headers["Max_Cell_Voltage"])
-                            # print("step no:", config["Thresholds"][battery_type][test_type]["charge"]["Max_Cell_Voltage_step"])
-                            # print(sheets_data)    
-                            # print(sheets_data[int(headers["Sheet_Name_Cell_Deviation"])])   
-                            data = {
-                                "Battery Serial No": battery_id,
-                                "charge":{
-                                    "Cell_Deviation": safe_max(df=sheets_data[int(headers["Sheet_Name_Cell_Deviation"])], col=headers["Cell_Deviation"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["cell_deviation_step"]) if is_standerd else max_temp_diff(df=sheets_data[int(headers["Sheet_Name_Cell_Deviation"])], min_col=headers["Min_Cell_Temperature"], max_col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["cell_deviation_step"]),
-
-                                    "Capacity": safe_sum(df=sheets_data[int(headers["Sheet_Name_Capacity"])], col=headers["Capacity"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["capacity_step"]),
+                                        "Capacity": safe_sum(df=sheets_data[int(headers["Sheet_Name_Capacity"])], col=headers["Capacity"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["capacity_step"]),
+                                        
+                                        "Pack_Voltage": safe_last_step(df=sheets_data[int(headers["Sheet_Name_Pack_Voltage"])], col=headers["Pack_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["pack_voltage_step"]),
+                                        
+                                        "Max_Cell_Voltage" : safe_max(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Voltage"])], col=headers["Max_Cell_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["Max_Cell_Voltage_step"]),
+                                        
+                                        "Min_Cell_Voltage": safe_max(df=sheets_data[int(headers["Sheet_Name_Min_Cell_Voltage"])], col=headers["Min_Cell_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["Min_Cell_Voltage_step"]),
+                                        
+                                        "Max_Cell_Temperature": safe_max(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Temperature"])], col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["Max_Cell_Temperature_step"]),
+                                        
+                                        "Min_Cell_Temperature": safe_max(df=sheets_data[int(headers["Sheet_Name_Min_Cell_Temperature"])], col=headers["Min_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["Min_Cell_Temperature_step"]),
+                                        
+                                        "SOC" : safe_last_step(df= sheets_data[int(headers["Sheet_Name_SOC"])], col=headers["SOC"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["SOC_step"]),
+                                        #
+                                        
+                                        "End_SOC": safe_last(df= sheets_data[int(headers["Sheet_Name_SOC"])], col=headers["SOC"]),
+                                        
+                                        "temperature_difference": max_temp_diff(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Temperature"])], min_col=headers["Min_Cell_Temperature"], max_col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["temperature_difference_step"])                                
+                                    },
+                                    "discharge":{
+                                        "Cell_Deviation": safe_max(df=sheets_data[int(headers["Sheet_Name_Cell_Deviation"])], col=headers["Cell_Deviation"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["cell_deviation_step"]) if is_standerd else max_temp_diff(df=sheets_data[int(headers["Sheet_Name_Cell_Deviation"])], min_col=headers["Min_Cell_Temperature"], max_col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["cell_deviation_step"]),
                                     
-                                    "Pack_Voltage": safe_sum(df=sheets_data[int(headers["Sheet_Name_Pack_Voltage"])], col=headers["Pack_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["pack_voltage_step"]),
+                                        "Capacity": safe_sum(df=sheets_data[int(headers["Sheet_Name_Capacity"])], col=headers["Capacity"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["capacity_step"]),
+                                        
+                                        "Pack_Voltage": safe_last_step(df=sheets_data[int(headers["Sheet_Name_Pack_Voltage"])], 
+                                        col=headers["Pack_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["pack_voltage_step"]),
+                                        
+                                        "Max_Cell_Voltage" : safe_max(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Voltage"])], col=headers["Max_Cell_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["Max_Cell_Voltage_step"]),
+                                        
+                                        "Min_Cell_Voltage": safe_max(df=sheets_data[int(headers["Sheet_Name_Min_Cell_Voltage"])], col=headers["Min_Cell_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["Min_Cell_Voltage_step"]),
+                                        
+                                        "Max_Cell_Temperature": safe_max(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Temperature"])], col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]
+                                        ["Max_Cell_Temperature_step"]),
+                                        
+                                        "Min_Cell_Temperature": safe_max(df=sheets_data[int(headers["Sheet_Name_Min_Cell_Temperature"])], col=headers["Min_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["Min_Cell_Temperature_step"]),
+                                        
+                                        "SOC" : safe_last_step(df= sheets_data[int(headers["Sheet_Name_SOC"])], col=headers["SOC"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["SOC_step"]),
+                                        
+                                        "End_SOC": safe_last(df= sheets_data[int(headers["Sheet_Name_SOC"])], col=headers["SOC"]),
+                                        
+                                        "temperature_difference": max_temp_diff(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Temperature"])], min_col=headers["Min_Cell_Temperature"], max_col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["temperature_difference_step"])
                                     
-                                    "Max_Cell_Voltage" : safe_max(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Voltage"])], col=headers["Max_Cell_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["Max_Cell_Voltage_step"]),
-                                    
-                                    "Min_Cell_Voltage": safe_max(df=sheets_data[int(headers["Sheet_Name_Min_Cell_Voltage"])], col=headers["Min_Cell_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["Min_Cell_Voltage_step"]),
-                                    
-                                    "Max_Cell_Temperature": safe_max(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Temperature"])], col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["Max_Cell_Temperature_step"]),
-                                    
-                                    "Min_Cell_Temperature": safe_max(df=sheets_data[int(headers["Sheet_Name_Min_Cell_Temperature"])], col=headers["Min_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["Min_Cell_Temperature_step"]),
-                                    
-                                    "SOC" : safe_last_step(df= sheets_data[int(headers["Sheet_Name_SOC"])], col=headers["SOC"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["SOC_step"]),
-                                    #
-                                    
-                                    "End_SOC": safe_last(df= sheets_data[int(headers["Sheet_Name_SOC"])], col=headers["SOC"]),
-                                    
-                                    "temperature_difference": max_temp_diff(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Temperature"])], min_col=headers["Min_Cell_Temperature"], max_col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["charge"]["temperature_difference_step"])                                
-                                },
-                                "discharge":{
-                                    "Cell_Deviation": safe_max(df=sheets_data[int(headers["Sheet_Name_Cell_Deviation"])], col=headers["Cell_Deviation"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["cell_deviation_step"]) if is_standerd else max_temp_diff(df=sheets_data[int(headers["Sheet_Name_Cell_Deviation"])], min_col=headers["Min_Cell_Temperature"], max_col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["cell_deviation_step"]),
-                                
-                                    "Capacity": safe_sum(df=sheets_data[int(headers["Sheet_Name_Capacity"])], col=headers["Capacity"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["capacity_step"]),
-                                    
-                                    "Pack_Voltage": safe_sum(df=sheets_data[int(headers["Sheet_Name_Pack_Voltage"])], 
-                                    col=headers["Pack_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["pack_voltage_step"]),
-                                    
-                                    "Max_Cell_Voltage" : safe_max(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Voltage"])], col=headers["Max_Cell_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["Max_Cell_Voltage_step"]),
-                                    
-                                    "Min_Cell_Voltage": safe_max(df=sheets_data[int(headers["Sheet_Name_Min_Cell_Voltage"])], col=headers["Min_Cell_Voltage"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["Min_Cell_Voltage_step"]),
-                                    
-                                    "Max_Cell_Temperature": safe_max(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Temperature"])], col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]
-                                    ["Max_Cell_Temperature_step"]),
-                                    
-                                    "Min_Cell_Temperature": safe_max(df=sheets_data[int(headers["Sheet_Name_Min_Cell_Temperature"])], col=headers["Min_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["Min_Cell_Temperature_step"]),
-                                    
-                                    "SOC" : safe_last_step(df= sheets_data[int(headers["Sheet_Name_SOC"])], col=headers["SOC"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["SOC_step"]),
-                                    
-                                    "End_SOC": safe_last(df= sheets_data[int(headers["Sheet_Name_SOC"])], col=headers["SOC"]),
-                                    
-                                    "temperature_difference": max_temp_diff(df=sheets_data[int(headers["Sheet_Name_Max_Cell_Temperature"])], min_col=headers["Min_Cell_Temperature"], max_col=headers["Max_Cell_Temperature"], step_no= config["Thresholds"][battery_type][test_type]["discharge"]["temperature_difference_step"])
-                                
+                                    }
                                 }
+
+
+                            except Exception as e:
+                                print("Excel read FAILED:", repr(e))
+                                raise
+                            
+                        # print("Extracted Data:", data)
+                        thresholds_config = load_thresholds()
+                        # print("Loaded Thresholds:", thresholds_config)
+                        threshold_block = thresholds_config["Thresholds"][battery_type][test_type]
+                        # print("Using Threshold Block:", threshold_block)
+                        print("Evaluating charge thresholds...")
+                        # data = data["charge"] if test_type == "CDC" else data["discharge"]
+                        overall_pass, evaluated = evaluate_thresholds(data, threshold_block)
+                        print("Evaluation Results:", evaluated, "Overall Pass:", overall_pass)
+                        final_status = "PASS" if overall_pass else "FAIL"
+
+                        data["charge"] = {k: to_native(v) for k, v in data["charge"].items()}
+                        data["discharge"] = {k: to_native(v) for k, v in data["discharge"].items()}
+                        data = sanitize_json(data)
+                        evaluated = sanitize_json(evaluated)
+                        payload = {
+                            "data_update": {
+                                "meta": {
+                                    "battery_id": battery_id,
+                                    "battery_type": battery_type,
+                                    "test_type": test_type,
+                                    "device_id": device_id,
+                                    "device_channel": device_channel,
+                                    "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
+                                },
+                                "results": data,
+                                "evaluated": evaluated,
+                                "final_status": final_status
                             }
-
-
-                        except Exception as e:
-                            print("Excel read FAILED:", repr(e))
-                            raise
-                        
-                    # print("Extracted Data:", data)
-                    thresholds_config = load_thresholds()
-                    # print("Loaded Thresholds:", thresholds_config)
-                    threshold_block = thresholds_config["Thresholds"][battery_type][test_type]
-                    # print("Using Threshold Block:", threshold_block)
-                    print("Evaluating charge thresholds...")
-                    # data = data["charge"] if test_type == "CDC" else data["discharge"]
-                    overall_pass, evaluated = evaluate_thresholds(data, threshold_block)
-                    print("Evaluation Results:", evaluated, "Overall Pass:", overall_pass)
-                    final_status = "PASS" if overall_pass else "FAIL"
-                    send_result_to_plc(None, None, None, None, final_status)
-                    data["charge"] = {k: to_native(v) for k, v in data["charge"].items()}
-                    data["discharge"] = {k: to_native(v) for k, v in data["discharge"].items()}
-                    data = sanitize_json(data)
-                    evaluated = sanitize_json(evaluated)
-                    payload = {
-                        "data_update": {
-                            "meta": {
-                                "battery_id": battery_id,
-                                "battery_type": battery_type,
-                                "test_type": test_type,
-                                "device_id": device_id,
-                                "device_channel": device_channel,
-                                "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
-                            },
-                            "results": data,
-                            "evaluated": evaluated,
-                            "final_status": final_status
                         }
-                    }
 
-                    socketio.emit("live_data", payload)
+                        socketio.emit("live_data", payload)
+                        print(f"Data emitted to dashboard.{data}")
+                        send_result_to_plc(device_id, device_channel, final_status)
+                        send_result_to_database(test_type, payload)
+                        logging.info(f"Data emitted: {data}")
+                        logging.info(f"Test status for file {file}: {final_status}")
+                    else:
+                        with file_lock:
+                            try:
+                                with open(os.path.join(BASE_DIR, "config.json"), "r") as cf:
+                                    config = json.load(cf)
 
-                    
-                    print(f"Data emitted to dashboard.{data}")
-                    logging.info(f"Data emitted: {data}")
-                    # thresholds = load_thresholds()
-                    # alerts = {}
-                    # for key in data:
-                    #     if data[key] > thresholds.get(key, float('inf')):
-                    #         alerts[key] = f"{key} threshold exceeded!"
-                    #         logging.warning(f"{key} value {data[key]} exceeds threshold {thresholds[key]}")
-                    
-                    # socketio.emit("data_update", {"data": data, "alerts": alerts})
-                    # logging.info(f"Data emitted: {data} with alerts: {alerts}")
-                    
-                    #  sending pass/fail status to PLC
-                    # status = "PASS" if not alerts else "FAIL"
-                    # logging.info(f"Test status for file {file}: {status}")
-                    
-                    # Remove or archive processed file
-                    # os.remove(os.path.join(base_path, file))
-                    # logging.info(f"Processed file removed: {file}")
+                                headers = config["Headers"]
+                                headers = headers[battery_type]
+                                headers = headers[test_type]['header']
+                                # print("Using test type", test_type ,"headers:", headers)
+                                # extract the unique sheetNO for the HRD and HRC only and read only those sheets
+                                unique_sheets = set()
+                                unique_sheets.add(int(headers["Sheet_Name_HRD"]))
+                                unique_sheets.add(int(headers["Sheet_Name_HRC"]))
+                                sheets_data = {}
+                                for sheet in unique_sheets:
+                                    sheets_data[sheet] = read_sheet(file_path, int(sheet))
+                                data = {
+                                    "Battery Serial No": battery_id,
+                                    "charge":{
+                                        "HRC": safe_last(df=sheets_data[int(headers["Sheet_Name_HRC"])], col=headers["HRC"])
+                                    },
+                                    "discharge":{   
+                                        "HRD": safe_last(df=sheets_data[int(headers["Sheet_Name_HRD"])], col=headers["HRD"])
+                                    }
+                                }
+                                # print("Extracted Data:", data)
+                                thresholds_config = load_thresholds()
+                                # print("Loaded Thresholds:", thresholds_config)
+                                threshold_block = thresholds_config["Thresholds"][battery_type][test_type]
+                                # print("Using Threshold Block:", threshold_block)
+                                print(f"Evaluating  thresholds...")
+                                overall_pass, evaluated = evaluate_thresholds(data, threshold_block)
+                                print("Evaluation Results:", evaluated, "Overall Pass:", overall_pass)
+                                final_status = "PASS" if overall_pass else "FAIL"
+                                send_result_to_plc(device_id, device_channel, final_status)
+                                send_result_to_database(test_type, data)
+                                data["charge"] = {k: to_native(v) for k, v in data["charge"].items()}
+                                data["discharge"] = {k: to_native(v) for k, v in data["discharge"].items()}
+                                data = to_native(data)
+                                data = sanitize_json(data)
+                                evaluated = sanitize_json(evaluated)
+                                payload = {
+                                    "data_update": {
+                                        "meta": {
+                                            "battery_id": battery_id,
+                                            "battery_type": battery_type,
+                                            "test_type": test_type,
+                                            "device_id": device_id,
+                                            "device_channel": device_channel,
+                                            "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
+                                        },
+                                        "results": data,
+                                        "evaluated": evaluated,
+                                        "final_status": final_status
+                                    }
+                                }
+
+                                socketio.emit("live_data", payload)
+
+                                    
+                                print(f"Data emitted to dashboard.{data}")
+                                logging.info(f"Data emitted: {data}")
+                                logging.info(f"Test status for file {file}: {final_status}")
+                            except Exception as e:
+                                print("Error loading config for HRD/HRC:", repr(e))
+                                continue
                 else:
                     logging.debug("No new files to process.")
                     continue

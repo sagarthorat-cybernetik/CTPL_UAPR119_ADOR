@@ -5,3 +5,7 @@ requests
 PyJWT
 flask-sock
 pandas
+numpy
+pymodbus
+pyModbusTCP
+pyodbc
