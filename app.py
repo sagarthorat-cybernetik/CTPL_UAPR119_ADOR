@@ -85,6 +85,49 @@ PLC_REGISTERS = {
         "start":42
     }
 }
+PRVEIOS_BATTERY_END_TIME = {
+    "6":{
+        "1":0,
+        "2":0,
+    },
+    "5":{
+        "1":0,
+        "2":0,
+        "3":0,
+        "4":0,
+        "5":0,
+        "6":0,
+        "7":0,
+        "8":0,
+        "9" :0,
+        "10":0,
+        "11":0,
+        "12":0,
+        "13":0,
+        "14":0,
+        "15":0,
+        "16":0,
+    },
+    "1":{
+        "1":0,
+        "2":0,
+        "3":0,
+        "4":0,
+        "5":0,
+        "6":0,
+        "7":0,
+        "8":0,
+        "9" :0,
+        "10":0,
+        "11":0,
+        "12":0,
+        "13":0,
+        "14":0,
+        "15":0,
+        "16":0,
+
+    }
+}
 API_BASE_URL = "http://localhost:5000"  # For simulated device API
 # Initialize with your DBC file
 # sim = DBCDataSimulator("D:\\Sagar_OneDrive\\OneDrive - Cybernetik Technologies Pvt Ltd\\cybernetik\\UAPR119_\\onsite\\adore\\software\\DBC_2.3kWh.dbc", db_folder=STORED_DBC_PATH, interval=1)
@@ -117,6 +160,7 @@ def load_thresholds():
             return threshold
     except Exception as e:
         print(f"Error loading thresholds: {e}")
+        logging.error(f"Error loading thresholds: {e}")
         return DEFAULT_THRESHOLDS
 
 def save_thresholds(data):
@@ -213,7 +257,6 @@ def update_headers():
         # Ensure "Headers" key exists
         if "Headers" not in existing_data:
             existing_data["Headers"] = {}
-
         for model_name, model_block in data.items():
             for test_type, test_block in model_block.items():
                 if model_name not in existing_data["Headers"]:
@@ -327,6 +370,45 @@ def safe_last_step(df=None, col=None, step_no=None):
         df = df
     return df[col].iloc[-1] if not df.empty else None
 
+def safe_step_time(test_type,df):
+    if (test_type == "Sanity" or test_type == "CDC"):
+        if not {"Step Number", "Start Absolute Time", "End Absolute Time"}.issubset(df.columns):
+            return None
+
+        start_step = df["Step Number"].min()
+        end_step = df["Step Number"].max()
+
+        start_time = df.loc[df["Step Number"] == start_step, "Start Absolute Time"].iloc[0]
+        end_time = df.loc[df["Step Number"] == end_step, "End Absolute Time"].iloc[0]
+
+        start_time = pd.to_datetime(start_time, errors="coerce")
+        end_time = pd.to_datetime(end_time, errors="coerce")
+        if pd.isna(start_time) or pd.isna(end_time):
+            return None
+        return start_time, end_time, (end_time - start_time)
+    else:
+        if not {"Step Number", "Absolute time"}.issubset(df.columns):
+            return None
+        start_step = df["Step Number"].min()
+        end_step = df["Step Number"].max()
+
+        start_time = df["Absolute time"].iloc[0]
+        end_time = df["Absolute time"].iloc[-1]
+        # FIX: replace last ':' with '.'
+        def normalize_time(t):
+            if t.count(":") >= 3:
+                return t[::-1].replace(":", ".", 1)[::-1]
+            return t
+        start_time = pd.to_datetime(normalize_time(start_time), errors="coerce")
+        end_time = pd.to_datetime(normalize_time(end_time), errors="coerce")
+
+
+        if pd.isna(start_time) or pd.isna(end_time):
+            return None, None, None
+
+        return start_time, end_time, (end_time - start_time)
+        
+
 def check_range(value, min_val=None, max_val=None):
     if value is None:
         return False, "Value missing"
@@ -380,15 +462,13 @@ def send_result_to_plc(device, circuit, status):
     #     return
     
     value = 1 if status == "PASS" else 2
-    print(f"PLC Connection Status: {'Connected' if plc.is_open else 'Not Connected'}")
-    print(f"Device: {device}, Circuit: {circuit}, Status: {status}, Value to Send: {value}")
-    print(f"plc registers: {PLC_REGISTERS}")
-    print(f"Sending to PLC: {int(PLC_REGISTERS[device]['start'])+(int(circuit)-1)} = {value}")
+
     try:
         plc.write_single_register(int(PLC_REGISTERS[device]['start'])+(int(circuit)-1), value)
-        print("Data sent to PLC successfully.")
+        logging.info(f"Sent result to PLC for Device {device} Circuit {circuit}: {status}")
     except Exception as e:
         print(f"Error sending data to PLC: {e}")
+        logging.error(f"Error sending data to PLC for Device {device} Circuit {circuit}: {e}")
 
 
 ##--------------------------------------------------------
@@ -411,20 +491,22 @@ def connect_db():
             return conn
         except Exception as e:
             print(f"Database connection error: {e}")
+            logging.error(f"Database connection error: {e}")
             return None
 
 def send_result_to_database(test_type, data):
     try:
-        print(f"Preparing to insert data into database for test type: {test_type} with data: {data}")
+        # print(f"Preparing to insert data into database for test type: {test_type} with data: {data}")
         if test_type == "CDC" or test_type == "Sanity":
             conn = connect_db()
             if conn is None:
                 print("Failed to connect to database.")
+                logging.error("Failed to connect to database.")
                 return
             cursor = conn.cursor()
             # Insert data into the database
             insert_query = """
-                INSERT INTO batterytestresult ( Date_Time , Serial_Number, Channel_No, Machine_No, Testing_Type, CH_Capacity_Ah, CH_Pack_Voltage_V, CH_HCV,CH_Cell_Deviation,CH_Temp, CH_Temp_Deviation, DCH_Capacity_Ah, DCH_Pack_Voltage_V, DCH_LCV, DCH_Cell_Deviation, DCH_Temp, DCH_Temp_Deviation, END_SOC, STATUS, Step_Timing,Cycle_Time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                INSERT INTO batterytestresult ( DateTime , Serial_Number, Channel_No, Machine_No, Testing_Type, CH_Capacity_Ah, CH_Pack_Voltage_V, CH_HCV,CH_Cell_Deviation,CH_Temp, CH_Temp_Deviation, DCH_Capacity_Ah, DCH_Pack_Voltage_V, DCH_LCV, DCH_Cell_Deviation, DCH_Temp, DCH_Temp_Deviation, END_SOC, STATUS, Step_Timing,Cycle_Time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """
             cursor.execute(
                 insert_query, 
@@ -448,16 +530,17 @@ def send_result_to_database(test_type, data):
                 data["data_update"]["results"]["discharge"]["temperature_difference"],
                 data["data_update"]["results"]["discharge"]["End_SOC"],
                 1 if data["data_update"]["final_status"] == "PASS" else 2,
-                0,
-                0
-                # data["data_update"]["results"]["charge"]["Step_Timing"] ,
-                # data["data_update"]["results"]["charge"]["Cycle_Time"]
+                pd.to_timedelta(data["data_update"]["step_time"]).total_seconds() if data["data_update"]["step_time"] is not None else None,
+                pd.to_timedelta(data["data_update"]["cycle_time"]).total_seconds() if data["data_update"]["cycle_time"] is not None else None
+                # data["data_update"]["Step_Timing"] ,
+                # data["data_update"]["Cycle_Time"]
             )
             )
             conn.commit()
             cursor.close()
             conn.close()
-            print("Data inserted into database successfully.")
+            # print("Data inserted into database successfully.")
+            logging.info(f"Data inserted into database for Battery ID {data['data_update']['meta']['battery_id']} with status {data['data_update']['final_status']}")
         else:
             # hrd/hrc
             """
@@ -479,24 +562,28 @@ def send_result_to_database(test_type, data):
             conn = connect_db()
             if conn is None:
                 print("Failed to connect to database.")
+                logging.error("Failed to connect to database.")
                 return
             cursor = conn.cursor()
             insert_query = """
-                INSERT INTO HRD_Test_Stn (DateTime, ModuleBarcodeData, HRD_Test_Spare01, HRD_Test_Spare02, Status)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO HRD_Test_Stn (DateTime, ModuleBarcodeData, HRD_Test_Spare01, HRD_Test_Spare02, Status, CycleTime, StepTime)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             """
+            # print(data)
             cursor.execute(insert_query, (
                 datetime.now(),
                 data["data_update"]["meta"]["battery_id"],
-                data["data_update"]["results"]["discharge"]["HRD"],
-                data["data_update"]["results"]["charge"]["HRC"],
-                1 if data["data_update"]["final_status"] == "PASS" else 0
+                data["data_update"]["results"]["discharge"]["hrd"],
+                data["data_update"]["results"]["charge"]["hrc"],
+                1 if data["data_update"]["final_status"] == "PASS" else 0,
+                pd.to_timedelta(data["data_update"]["step_time"]).total_seconds() if data["data_update"]["step_time"] is not None else None,
+                pd.to_timedelta(data["data_update"]["cycle_time"]).total_seconds() if data["data_update"]["cycle_time"] is not None else None
             ))
             conn.commit()
             cursor.close()
             conn.close()
-            print("HRD/HRC Data inserted into database successfully.")
-
+            # print("HRD/HRC Data inserted into database successfully.")
+            logging.info(f"HRD/HRC Data inserted into database for Battery ID {data['data_update']['meta']['battery_id']} with status {data['data_update']['final_status']}")
     except Exception as e:
         print(f"Error inserting data into database: {e}")
 
@@ -516,44 +603,8 @@ def sanitize_json(obj):
     return obj
 
 def background_reader_thread():
-    """
-    in the base path check if there is any new file with .excel extension every 5 seconds, if found take the file name and extract the metadata from file name, 
-    Examples: 
-            1. 2026-01-21 22-38-48_1-8_MK5AJKAPBB00601
-            2. 2026-01-10 11-34-35_5-1_ML2AJ9APBA00040
-            3. 2026-01-22 09-21-19_1-1_CEK5C68R20AP00627R 
-            4. 2026-01-22 09-21-37_1-2_CEK5C68B20AP00627B
-    date_time : 
-        1.2026-01-21 22:38:48
-        2.2026-01-10 11:34:35
-        3.2026-01-22 09:21:19
-        4.2026-01-22 09:21:37
-    battery_id : 
-        1.MK5AJKAPBB00601
-        2.ML2AJ9APBA00040
-        3.CEK5C68R20AP00627R
-        4.CEK5C68B20AP00627B
-    device_channel : 
-        1.1-8
-        2.5-1
-        3.1-1
-        4.1-2
-    Test type: 
-        1.M → CDC / Sanity 
-        2.M → CDC / Sanity 
-        3.CE → HRD / HRC
-        4.CE → HRD / HRC
-    battery type:
-        1.K5 : Triangular 
-        2.L2 : Moving Pack
-        3.K5 : Triangular
-        4.K5 : Triangular
-    this is just meta data .
-    now read the excel file and check if the test is pass or fail based on the thresholds stored in thresholds.json file for the specif battery type and test type.
-    and emmite the data to the dashboard via socketio.
-    and accordingly log the data in the log file. 
-    and finally send the pass or fail status to the plc. 
-        """
+    global PRVEIOS_BATTERY_END_TIME
+    global CURRENT_CYCLE_START_TIME
     while True:
         try:
             data = {}
@@ -584,6 +635,7 @@ def background_reader_thread():
                     else:
                         test_type = "HRD"
                     print(f"filename:{file}, filesize: {file_size} bytes, Test Type: {test_type}")
+                    logging.info(f"Extracted metadata from file name: DateTime: {date_time}, Device Channel: {device_channel}, Battery ID: {battery_id}, Test Type: {test_type}, File Size: {file_size} bytes")
                     if test_type == "CDC" or test_type == "Sanity":
                         battery_type = battery_id[1] + battery_id[2]  # e.g., L2
                     else:
@@ -613,14 +665,21 @@ def background_reader_thread():
                                 sheets_data = {}
                                 for sheet in unique_sheets:
                                     sheets_data[sheet] = read_sheet(file_path, int(sheet))
-                                    
+                                
                                 # print("here")
                                 # print("headers:", headers)
                                 # print("sheets_data:", headers["Sheet_Name_Max_Cell_Voltage"])
                                 # print("col", headers["Max_Cell_Voltage"])
                                 # print("step no:", config["Thresholds"][battery_type][test_type]["charge"]["Max_Cell_Voltage_step"])
                                 # print(sheets_data)    
-                                # print(sheets_data[int(headers["Sheet_Name_Cell_Deviation"])])   
+                                # print(sheets_data[int(headers["Sheet_Name_Cell_Deviation"])])
+                                start_time, end_time, step_timing = safe_step_time(test_type,df=sheets_data[int(headers["Sheet_Name_Capacity"])])   
+                                previous_end_time = PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)]
+                                if previous_end_time != 0:
+                                    cycle_timing = start_time - PRVEIOS_BATTERY_END_TIME[str(device_id)][str[device_channel]]  if PRVEIOS_BATTERY_END_TIME[str(device_id)][str[device_channel]] != 0 else None
+                                else:
+                                    cycle_timing = 0
+                                PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)] = end_time
                                 data = {
                                     "Battery Serial No": battery_id,
                                     "charge":{
@@ -674,6 +733,7 @@ def background_reader_thread():
 
                             except Exception as e:
                                 print("Excel read FAILED:", repr(e))
+                                logging.error(f"Error reading Excel file {file}: {e}")
                                 raise
                             
                         thresholds_config = load_thresholds()
@@ -697,7 +757,9 @@ def background_reader_thread():
                                 },
                                 "results": data,
                                 "evaluated": evaluated,
-                                "final_status": final_status
+                                "final_status": final_status,
+                                "step_time": str(step_timing) if step_timing is not None else None,
+                                "cycle_time": str(step_timing) if step_timing is not None else None
                             }
                         }
 
@@ -706,7 +768,6 @@ def background_reader_thread():
                         # print(f"device_id: {device_id}")
                         # print(f"device_channel: {device_channel}")
                         # print(f"final_status: {final_status}")
-                        print(f"sending result to plc... Device: {device_id}, Channel: {device_channel}, Status: {final_status}")
                         send_result_to_plc(device_id, device_channel, final_status)
                         send_result_to_database(test_type, payload)
                         logging.info(f"Data emitted: {data}")
@@ -719,7 +780,7 @@ def background_reader_thread():
 
                                 headers = config["Headers"]
                                 headers = headers[battery_type]
-                                headers = headers[test_type]['header']
+                                headers = headers["CDC"]['header']
                                 # print("Using test type", test_type ,"headers:", headers)
                                 # extract the unique sheetNO for the HRD and HRC only and read only those sheets
                                 unique_sheets = set()
@@ -728,26 +789,33 @@ def background_reader_thread():
                                 sheets_data = {}
                                 for sheet in unique_sheets:
                                     sheets_data[sheet] = read_sheet(file_path, int(sheet))
+                                start_time, end_time, step_timing = safe_step_time(test_type,df=sheets_data[int(headers["Sheet_Name_HRD"])])
+                                previous_end_time = PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)]
+                                if previous_end_time != 0:
+                                    cycle_timing =  pd.to_datetime(start_time) - pd.to_datetime(PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)])  if PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)] != 0 else None
+                                else:
+                                    cycle_timing = 0
+
+                                PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)] = pd.to_datetime(end_time)
                                 data = {
                                     "Battery Serial No": battery_id,
                                     "charge":{
-                                        "HRC": safe_last(df=sheets_data[int(headers["Sheet_Name_HRC"])], col=headers["HRC"])
+                                        "hrc": safe_last(df=sheets_data[int(headers["Sheet_Name_HRC"])], col=headers["HRC"])
                                     },
                                     "discharge":{   
-                                        "HRD": safe_last(df=sheets_data[int(headers["Sheet_Name_HRD"])], col=headers["HRD"])
+                                        "hrd": safe_last(df=sheets_data[int(headers["Sheet_Name_HRD"])], col=headers["HRD"])
                                     }
                                 }
                                 # print("Extracted Data:", data)
                                 thresholds_config = load_thresholds()
                                 # print("Loaded Thresholds:", thresholds_config)
-                                threshold_block = thresholds_config["Thresholds"][battery_type][test_type]
+                                threshold_block = thresholds_config["Thresholds"][battery_type]["CDC"]
                                 # print("Using Threshold Block:", threshold_block)
-                                print(f"Evaluating  thresholds...")
+                                # print(f"Evaluating  thresholds...")
                                 overall_pass, evaluated = evaluate_thresholds(data, threshold_block)
-                                print("Evaluation Results:", evaluated, "Overall Pass:", overall_pass)
+                                # print("Evaluation Results:", evaluated, "Overall Pass:", overall_pass)
                                 final_status = "PASS" if overall_pass else "FAIL"
-                                send_result_to_plc(device_id, device_channel, final_status)
-                                send_result_to_database(test_type, data)
+
                                 data["charge"] = {k: to_native(v) for k, v in data["charge"].items()}
                                 data["discharge"] = {k: to_native(v) for k, v in data["discharge"].items()}
                                 data = to_native(data)
@@ -765,18 +833,22 @@ def background_reader_thread():
                                         },
                                         "results": data,
                                         "evaluated": evaluated,
-                                        "final_status": final_status
+                                        "final_status": final_status,
+                                        "step_time": str(step_timing) if step_timing is not None else None,
+                                        "cycle_time": str(cycle_timing) if cycle_timing is not None else None
                                     }
                                 }
 
                                 socketio.emit("live_data", payload)
 
                                     
-                                print(f"Data emitted to dashboard.{data}")
                                 logging.info(f"Data emitted: {data}")
                                 logging.info(f"Test status for file {file}: {final_status}")
+                                send_result_to_plc(device_id, device_channel, final_status)
+                                send_result_to_database(test_type, payload)
                             except Exception as e:
                                 print("Error loading config for HRD/HRC:", repr(e))
+                                logging.error(f"Error loading config for HRD/HRC for file {file}: {e}")
                                 continue
                 else:
                     logging.debug("No new files to process.")
