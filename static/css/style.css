@@ -158,6 +158,14 @@ button, input, select {
 .btn-full {
   width: 100%;
 }
+.loadbutton{
+    padding: 0.5vh;
+    font-family: var(--font-main);
+    font-size: large;
+    border-radius: 22px;
+    width: 7%;
+    font-weight: 500;
+}
 
 /* ===========================================================
    Login Page - Industrial Style

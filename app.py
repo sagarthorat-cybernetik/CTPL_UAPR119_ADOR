@@ -22,6 +22,7 @@ from core.utils import json_response
 # =========================================================
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+FILE_PATH = "D:\\EXPORT DATA\\1"
 LOG_FILE = os.path.join(BASE_DIR, "logs", "app.log")
 
 config_file = os.path.join(BASE_DIR, "config.json")
@@ -302,173 +303,230 @@ def on_disconnect():
 #  Background Threads - Optimized for High Performance
 # =========================================================
 def read_sheet(file_path=None, sheet_name=None):
-    return pd.read_excel(file_path, sheet_name=sheet_name)
-
+    try:
+        return pd.read_excel(file_path, sheet_name=sheet_name)
+    except Exception as e:
+        print(f"Error reading sheet {sheet_name} from {file_path}: {e}")
+        logging.error(f"Error reading sheet {sheet_name} from {file_path}: {e}")
+        return pd.DataFrame()
+    
 def max_temp_diff(df=None,min_col="MinTemp", max_col="MaxTemp",step_no=None):
-    if step_no is not None:
-        if "-" in step_no:
-            step_parts = step_no.split("-")
-            if len(step_parts) == 2:
-                start_step = int(step_parts[0])
-                end_step = int(step_parts[1])
-                df = df[(df["Step Number"] >= start_step) & (df["Step Number"] <= end_step)]
+    try:
+        if step_no is not None:
+            step_no = str(step_no)
+            if "-" in step_no:
+                step_parts = step_no.split("-")
+                if len(step_parts) == 2:
+                    start_step = int(step_parts[0])
+                    end_step = int(step_parts[1])
+                    df = df[(df["Step Number"] >= start_step) & (df["Step Number"] <= end_step)]
+            else:
+                step_int = int(step_no)
+                df = df[df["Step Number"] == step_int]
         else:
-            step_int = int(step_no)
-            df = df[df["Step Number"] == step_int]
-    else:
-        df = df
-    return (df[max_col]).max() - (df[min_col]).max()
+            df = df
+         # Row-wise difference
+        df["temp_diff"] = df[max_col] - df[min_col]
+
+        max_diff = df["temp_diff"].max()
+        return max_diff if pd.notna(max_diff) else None
+    except Exception as e:
+        print(f"Error calculating max temperature difference: {e}")
+        logging.error(f"Error calculating max temperature difference: {e}")
+        return None
 
 def safe_max(df=None, col=None,step_no=None):
-    #  filter the dataframe based on the step_parts if step is come like ["1-8"] then filter all steps from 1 to 8
-    df_filtered = pd.DataFrame()
-    if step_no is not None:
-        if "-" in step_no:
-            step_parts = step_no.split("-")
-            if len(step_parts) == 2:
-                start_step = int(step_parts[0])
-                end_step = int(step_parts[1])
-                df_filtered = df[(df["Step Number"] >= start_step) & (df["Step Number"] <= end_step)]
+    try:
+        #  filter the dataframe based on the step_parts if step is come like ["1-8"] then filter all steps from 1 to 8
+        df_filtered = pd.DataFrame()
+        if step_no is not None:
+            step_no = str(step_no)
+            if "-" in step_no:
+                step_parts = step_no.split("-")
+                if len(step_parts) == 2:
+                    start_step = int(step_parts[0])
+                    end_step = int(step_parts[1])
+                    df_filtered = df[(df["Step Number"] >= start_step) & (df["Step Number"] <= end_step)]
+            else:
+                step_int = int(step_no)
+                df_filtered = df[df["Step Number"] == step_int]
         else:
-            step_int = int(step_no)
-            df_filtered = df[df["Step Number"] == step_int]
-    else:
-        df_filtered = df
-    return df_filtered[col].max() if not df_filtered.empty else None
+            df_filtered = df
+        return df_filtered[col].max() if not df_filtered.empty else None
+    except Exception as e:
+        print(f"Error calculating safe max: {e}")
+        logging.error(f"Error calculating safe max: {e}")
+        return None
 
 def safe_sum(df=None, col=None, step_no=None):
-    if step_no is not None:
-        if "-" in step_no:
-            step_parts = step_no.split("-")
-            if len(step_parts) == 2:
-                start_step = int(step_parts[0])
-                end_step = int(step_parts[1])
-                df = df[(df["Step Number"] >= start_step) & (df["Step Number"] <= end_step)]
+    try:
+        if step_no is not None:
+            step_no = str(step_no)
+            if "-" in step_no:
+                step_parts = step_no.split("-")
+                if len(step_parts) == 2:
+                    start_step = int(step_parts[0])
+                    end_step = int(step_parts[1])
+                    df = df[(df["Step Number"] >= start_step) & (df["Step Number"] <= end_step)]
+            else:
+                step_int = int(step_no)
+                df = df[df["Step Number"] == step_int]
         else:
-            step_int = int(step_no)
-            df = df[df["Step Number"] == step_int]
-    else:
-        df = df
+            df = df
 
-    return df[col].sum() if not df.empty else None
+        return df[col].sum() if not df.empty else None
+    except Exception as e:
+        print(f"Error calculating safe sum: {e}")
+        logging.error(f"Error calculating safe sum: {e}")
+        return None
 
 def safe_last(df=None, col=None):
-    return df[col].iloc[-1] if not df.empty else None
-
+    try:
+        return df[col].iloc[-1] if not df.empty else None
+    except Exception as e:
+        print(f"Error getting safe last value: {e}")
+        logging.error(f"Error getting safe last value: {e}")
+        return None
 def safe_last_step(df=None, col=None, step_no=None):
-    if step_no is not None:
-        if "-" in step_no:
-            step_parts = step_no.split("-")
-            if len(step_parts) == 2:
-                start_step = int(step_parts[0])
-                end_step = int(step_parts[1])
-                df = df[(df["Step Number"] >= start_step) & (df["Step Number"] <= end_step)]
+    try:
+        if step_no is not None:
+            step_no = str(step_no)
+            if "-" in step_no:
+                step_parts = step_no.split("-")
+                if len(step_parts) == 2:
+                    start_step = int(step_parts[0])
+                    end_step = int(step_parts[1])
+                    df = df[(df["Step Number"] >= start_step) & (df["Step Number"] <= end_step)]
+            else:
+                step_int = int(step_no)
+                df = df[df["Step Number"] == step_int]
         else:
-            step_int = int(step_no)
-            df = df[df["Step Number"] == step_int]
-    else:
-        df = df
-    return df[col].iloc[-1] if not df.empty else None
+            df = df
+        return df[col].iloc[-1] if not df.empty else None
+    except Exception as e:
+        print(f"Error getting safe last step value: {e}")
+        logging.error(f"Error getting safe last step value: {e}")
+        return None
 
 def safe_step_time(test_type,df):
-    if (test_type == "Sanity" or test_type == "CDC"):
-        if not {"Step Number", "Start Absolute Time", "End Absolute Time"}.issubset(df.columns):
-            return None
+    try:
+        if (test_type == "Sanity" or test_type == "CDC"):
+            if not {"Step Number", "Start Absolute Time", "End Absolute Time"}.issubset(df.columns):
+                return None
 
-        start_step = df["Step Number"].min()
-        end_step = df["Step Number"].max()
+            start_step = df["Step Number"].min()
+            end_step = df["Step Number"].max()
 
-        start_time = df.loc[df["Step Number"] == start_step, "Start Absolute Time"].iloc[0]
-        end_time = df.loc[df["Step Number"] == end_step, "End Absolute Time"].iloc[0]
+            start_time = df.loc[df["Step Number"] == start_step, "Start Absolute Time"].iloc[0]
+            end_time = df.loc[df["Step Number"] == end_step, "End Absolute Time"].iloc[0]
 
-        start_time = pd.to_datetime(start_time, errors="coerce")
-        end_time = pd.to_datetime(end_time, errors="coerce")
-        if pd.isna(start_time) or pd.isna(end_time):
-            return None
-        return start_time, end_time, (end_time - start_time)
-    else:
-        if not {"Step Number", "Absolute time"}.issubset(df.columns):
-            return None
-        start_step = df["Step Number"].min()
-        end_step = df["Step Number"].max()
+            start_time = pd.to_datetime(start_time, errors="coerce")
+            end_time = pd.to_datetime(end_time, errors="coerce")
+            if pd.isna(start_time) or pd.isna(end_time):
+                return None
+            return start_time, end_time, (end_time - start_time)
+        else:
+            if not {"Step Number", "Absolute time"}.issubset(df.columns):
+                return None
+            start_step = df["Step Number"].min()
+            end_step = df["Step Number"].max()
 
-        start_time = df["Absolute time"].iloc[0]
-        end_time = df["Absolute time"].iloc[-1]
-        # FIX: replace last ':' with '.'
-        def normalize_time(t):
-            if t.count(":") >= 3:
-                return t[::-1].replace(":", ".", 1)[::-1]
-            return t
-        start_time = pd.to_datetime(normalize_time(start_time), errors="coerce")
-        end_time = pd.to_datetime(normalize_time(end_time), errors="coerce")
+            start_time = df["Absolute time"].iloc[0]
+            end_time = df["Absolute time"].iloc[-1]
+            # FIX: replace last ':' with '.'
+            def normalize_time(t):
+                if t.count(":") >= 3:
+                    return t[::-1].replace(":", ".", 1)[::-1]
+                return t
+            start_time = pd.to_datetime(normalize_time(start_time), errors="coerce")
+            end_time = pd.to_datetime(normalize_time(end_time), errors="coerce")
 
 
-        if pd.isna(start_time) or pd.isna(end_time):
-            return None, None, None
+            if pd.isna(start_time) or pd.isna(end_time):
+                return None, None, None
 
-        return start_time, end_time, (end_time - start_time)
+            return start_time, end_time, (end_time - start_time)
+    except Exception as e:
+        print(f"Error calculating step time: {e}")
+        logging.error(f"Error calculating step time: {e}")
+        return None, None, None
         
 
 def check_range(value, min_val=None, max_val=None):
-    if value is None:
-        return False, "Value missing"
+    try:
+        if value is None:
+            return False, "Value missing"
 
-    if min_val is not None and value < min_val:
-        return False, f"{value} < min {min_val}"
+        if min_val is not None and value < min_val:
+            return False, f"{value} < min {min_val}"
 
-    if max_val is not None and value > max_val:
-        return False, f"{value} > max {max_val}"
+        if max_val is not None and value > max_val:
+            return False, f"{value} > max {max_val}"
 
-    return True, "OK"
+        return True, "OK"
+    except Exception as e:
+        print(f"Error checking range: {e}")
+        logging.error(f"Error checking range: {e}")
+        return False, "Error in range check"
+    
 def to_native(val):
     if hasattr(val, "item"):
         return val.item()
     return val
 
 def evaluate_thresholds(data, thresholds):
-    """
-    data: extracted test values
-    thresholds: config["Thresholds"]["charge"] or ["discharge"]
-    """
-    results = {}
-    overall_pass = True
-    for mode in ["charge", "discharge"]:
-        for key, value in data[mode].items():
-            min_key = f"{key}_min"
-            max_key = f"{key}_max"
-            min_val = float(thresholds[mode][min_key])
-            max_val = float(thresholds[mode][max_key])
-            is_ok, reason = check_range(value, min_val, max_val)
+    try:
+        """
+        data: extracted test values
+        thresholds: config["Thresholds"]["charge"] or ["discharge"]
+        """
+        results = {}
+        overall_pass = True
+        for mode in ["charge", "discharge"]:
+            for key, value in data[mode].items():
+                min_key = f"{key}_min"
+                max_key = f"{key}_max"
+                min_val = float(thresholds[mode][min_key])
+                max_val = float(thresholds[mode][max_key])
+                is_ok, reason = check_range(value, min_val, max_val)
 
-            results[key] = {
-                "value": to_native(value),
-                "min": min_val,
-                "max": max_val,
-                "status": "PASS" if is_ok else "FAIL",
-                "reason": reason
-            }
+                results[key] = {
+                    "value": to_native(value),
+                    "min": min_val,
+                    "max": max_val,
+                    "status": "PASS" if is_ok else "FAIL",
+                    "reason": reason
+                }
 
-            if not is_ok:
-                overall_pass = False
-    return overall_pass, results
+                if not is_ok:
+                    overall_pass = False
+        return overall_pass, results
+    except Exception as e:
+        print(f"Error evaluating thresholds: {e}")
+        logging.error(f"Error evaluating thresholds: {e}")
+        return False, {}
 
 def send_result_to_plc(device, circuit, status):
     # PASS = 1, FAIL = 0
     # check plc is connected or not
-    plc = connect_plc()
-
-    # if not plc.is_open:
-    #     print("PLC not connected.")
-    #     return
-    
-    value = 1 if status == "PASS" else 2
-
     try:
-        plc.write_single_register(int(PLC_REGISTERS[device]['start'])+(int(circuit)-1), value)
-        logging.info(f"Sent result to PLC for Device {device} Circuit {circuit}: {status}")
+        plc = connect_plc()
+
+        # if not plc.is_open:
+        #     print("PLC not connected.")
+        #     return
+        
+        value = 1 if status == "PASS" else 2
+
+        try:
+            plc.write_single_register(int(PLC_REGISTERS[device]['start'])+(int(circuit)-1), value)
+            logging.info(f"Sent result to PLC for Device {device} Circuit {circuit}: {status}")
+        except Exception as e:
+            print(f"Error sending data to PLC: {e}")
+            logging.error(f"Error sending data to PLC for Device {device} Circuit {circuit}: {e}")
     except Exception as e:
-        print(f"Error sending data to PLC: {e}")
-        logging.error(f"Error sending data to PLC for Device {device} Circuit {circuit}: {e}")
+        print(f"Error in PLC connection: {e}")
+        logging.error(f"Error in PLC connection: {e}")
 
 
 ##--------------------------------------------------------
@@ -506,7 +564,7 @@ def send_result_to_database(test_type, data):
             cursor = conn.cursor()
             # Insert data into the database
             insert_query = """
-                INSERT INTO batterytestresult ( DateTime , Serial_Number, Channel_No, Machine_No, Testing_Type, CH_Capacity_Ah, CH_Pack_Voltage_V, CH_HCV,CH_Cell_Deviation,CH_Temp, CH_Temp_Deviation, DCH_Capacity_Ah, DCH_Pack_Voltage_V, DCH_LCV, DCH_Cell_Deviation, DCH_Temp, DCH_Temp_Deviation, END_SOC, STATUS, Step_Timing,Cycle_Time) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                INSERT INTO batterytestresult ( DateTime , Serial_Number, Channel_No, Machine_No, Testing_Type, CH_Capacity_Ah, CH_Pack_Voltage_V, CH_HCV,CH_Cell_Deviation,CH_Temp, CH_Temp_Deviation, CH_SOC, DCH_Capacity_Ah, DCH_Pack_Voltage_V, DCH_LCV, DCH_Cell_Deviation, DCH_Temp, DCH_Temp_Deviation, DCH_SOC, END_SOC, STATUS, Step_Timing,Cycle_Time) values (?,?,?,?,?,?,?,?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """
             cursor.execute(
                 insert_query, 
@@ -522,12 +580,14 @@ def send_result_to_database(test_type, data):
                 data["data_update"]["results"]["charge"]["Cell_Deviation"],
                 data["data_update"]["results"]["charge"]["Max_Cell_Temperature"],
                 data["data_update"]["results"]["charge"]["temperature_difference"],
+                data["data_update"]["results"]["charge"]["SOC"],
                 data["data_update"]["results"]["discharge"]["Capacity"],
                 data["data_update"]["results"]["discharge"]["Pack_Voltage"],
                 data["data_update"]["results"]["discharge"]["Min_Cell_Voltage"],
                 data["data_update"]["results"]["discharge"]["Cell_Deviation"],
                 data["data_update"]["results"]["discharge"]["Max_Cell_Temperature"],
                 data["data_update"]["results"]["discharge"]["temperature_difference"],
+                data["data_update"]["results"]["discharge"]["SOC"],
                 data["data_update"]["results"]["discharge"]["End_SOC"],
                 1 if data["data_update"]["final_status"] == "PASS" else 2,
                 pd.to_timedelta(data["data_update"]["step_time"]).total_seconds() if data["data_update"]["step_time"] is not None else None,
@@ -566,7 +626,7 @@ def send_result_to_database(test_type, data):
                 return
             cursor = conn.cursor()
             insert_query = """
-                INSERT INTO HRD_Test_Stn (DateTime, ModuleBarcodeData, HRD_Test_Spare01, HRD_Test_Spare02, Status, CycleTime, StepTime)
+                INSERT INTO HRD_Test_Stn (DateTime, ModuleBarcodeData, HRD_data, HRC_data, Status, CycleTime, StepTime)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """
             # print(data)
@@ -594,13 +654,19 @@ def send_result_to_database(test_type, data):
 import math
 
 def sanitize_json(obj):
-    if isinstance(obj, dict):
-        return {k: sanitize_json(v) for k, v in obj.items()}
-    if isinstance(obj, list):
-        return [sanitize_json(v) for v in obj]
-    if isinstance(obj, float) and math.isnan(obj):
-        return None
-    return obj
+    try:
+        if isinstance(obj, dict):
+            return {k: sanitize_json(v) for k, v in obj.items()}
+        if isinstance(obj, list):
+            return [sanitize_json(v) for v in obj]
+        if isinstance(obj, float) and math.isnan(obj):
+            return None
+        return obj
+    except Exception as e:
+        print(f"Error sanitizing JSON: {e}")
+        logging.error(f"Error sanitizing JSON: {e}")
+        return obj
+
 
 def background_reader_thread():
     global PRVEIOS_BATTERY_END_TIME
@@ -610,7 +676,13 @@ def background_reader_thread():
             data = {}
             # check if new file is available in base path
             time.sleep(DATA_READ_INTERVAL)
-            base_path = os.path.join(BASE_DIR, "data_files")
+            # base_path = os.path.join(BASE_DIR, "data_files")
+            # date in yyyy-mm-dd 
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            base_path = os.path.join(FILE_PATH, today_str)
+            # check if path exist or not
+            if not os.path.exists(base_path):
+                continue
             files = [f for f in os.listdir(base_path) if f.endswith(".xlsx") and not f.startswith("~$")]
             # print("Files found:", files)
             for file in files:
@@ -634,6 +706,7 @@ def background_reader_thread():
                             test_type = "CDC"
                     else:
                         test_type = "HRD"
+                    print()
                     print(f"filename:{file}, filesize: {file_size} bytes, Test Type: {test_type}")
                     logging.info(f"Extracted metadata from file name: DateTime: {date_time}, Device Channel: {device_channel}, Battery ID: {battery_id}, Test Type: {test_type}, File Size: {file_size} bytes")
                     if test_type == "CDC" or test_type == "Sanity":
@@ -653,7 +726,7 @@ def background_reader_thread():
 
                                 headers = config["Headers"]
                                 headers = headers[battery_type]
-                                is_standerd = headers[test_type]["non_standard"]
+                                is_standerd = not int(headers[test_type]["non_standard"])
                                 headers = headers[test_type]['header']
                                 # print("Using test type", test_type ,"headers:", headers)
                                 # print("Using headers:", headers)
@@ -662,6 +735,7 @@ def background_reader_thread():
                                 for key, value in headers.items():
                                     if key.startswith("Sheet_Name_"):
                                         unique_sheets.add(int(value))
+                                print("Unique sheets to read:", unique_sheets)
                                 sheets_data = {}
                                 for sheet in unique_sheets:
                                     sheets_data[sheet] = read_sheet(file_path, int(sheet))
@@ -672,14 +746,19 @@ def background_reader_thread():
                                 # print("col", headers["Max_Cell_Voltage"])
                                 # print("step no:", config["Thresholds"][battery_type][test_type]["charge"]["Max_Cell_Voltage_step"])
                                 # print(sheets_data)    
-                                # print(sheets_data[int(headers["Sheet_Name_Cell_Deviation"])])
-                                start_time, end_time, step_timing = safe_step_time(test_type,df=sheets_data[int(headers["Sheet_Name_Capacity"])])   
+                                # print(sheets_data[int(headers["Sheet_Name_Cell_Deviation"])])\
+                                print("Calculating step time...")
+                                start_time, end_time, step_timing = safe_step_time(test_type,df=sheets_data[int(headers["Sheet_Name_Capacity"])])  
+                                print(f"Step Timing: {step_timing}") 
                                 previous_end_time = PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)]
                                 if previous_end_time != 0:
-                                    cycle_timing = start_time - PRVEIOS_BATTERY_END_TIME[str(device_id)][str[device_channel]]  if PRVEIOS_BATTERY_END_TIME[str(device_id)][str[device_channel]] != 0 else None
+                                    cycle_timing = start_time - PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)]  if PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)] != 0 else None
                                 else:
                                     cycle_timing = 0
+                                print("Updating previous end time for next cycle...")
                                 PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)] = end_time
+                                print(f"Start Time: {start_time}, End Time: {end_time}, Step Timing: {step_timing}, Previous End Time: {previous_end_time}, Cycle Timing: {cycle_timing}")
+                               
                                 data = {
                                     "Battery Serial No": battery_id,
                                     "charge":{
@@ -735,7 +814,7 @@ def background_reader_thread():
                                 print("Excel read FAILED:", repr(e))
                                 logging.error(f"Error reading Excel file {file}: {e}")
                                 raise
-                            
+                        print("Extracted Data:", data)
                         thresholds_config = load_thresholds()
                         threshold_block = thresholds_config["Thresholds"][battery_type][test_type]
                         overall_pass, evaluated = evaluate_thresholds(data, threshold_block)
@@ -797,13 +876,15 @@ def background_reader_thread():
                                     cycle_timing = 0
 
                                 PRVEIOS_BATTERY_END_TIME[str(device_id)][str(device_channel)] = pd.to_datetime(end_time)
+
                                 data = {
                                     "Battery Serial No": battery_id,
                                     "charge":{
-                                        "hrc": safe_last(df=sheets_data[int(headers["Sheet_Name_HRC"])], col=headers["HRC"])
+                                        "hrc": safe_max(df=sheets_data[int(headers["Sheet_Name_HRC"])], col=headers["HRC"], step_no= config["Thresholds"][battery_type]["CDC"]["charge"]["hrc_step"])
                                     },
                                     "discharge":{   
-                                        "hrd": safe_last(df=sheets_data[int(headers["Sheet_Name_HRD"])], col=headers["HRD"])
+                                        "hrd": safe_max(df=sheets_data[int(headers["Sheet_Name_HRD"])], col=headers["HRD"], step_no= config["Thresholds"][battery_type]["CDC"]["discharge"]["hrd_step"]
+                                                        )
                                     }
                                 }
                                 # print("Extracted Data:", data)
@@ -838,7 +919,6 @@ def background_reader_thread():
                                         "cycle_time": str(cycle_timing) if cycle_timing is not None else None
                                     }
                                 }
-
                                 socketio.emit("live_data", payload)
 
                                     

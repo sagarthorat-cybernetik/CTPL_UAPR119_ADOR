@@ -109,6 +109,9 @@ const DEFAULT_HEADERS = {
   "Sheet_Name_HRC": "1"
 };
 
+let GLOBAL_THRESHOLD_DATA = null;
+let GLOBAL_HEADER_DATA = null;
+
 /* ============================================================
    1️⃣ Fetch Current Thresholds
    ============================================================ */
@@ -118,6 +121,8 @@ async function loadThresholds() {
     if (!res) return;
     const data = await res.json();
     // console.log(data);
+    GLOBAL_THRESHOLD_DATA = data["Thresholds"];
+    GLOBAL_HEADER_DATA = data["Headers"];
     
     populateForm(data);
     populateHeadersForm(data["Headers"]);
@@ -126,6 +131,76 @@ async function loadThresholds() {
   }
 }
 
+const loadBtn = document.getElementById("loadModelData");
+
+loadBtn.addEventListener("click", () => {
+  loadSelectedModelData(GLOBAL_THRESHOLD_DATA, GLOBAL_HEADER_DATA);
+});
+
+function loadSelectedModelData(data, headers) {
+
+  const dropdown = document.getElementById("modelSelect");
+  const testtypeSelect = document.getElementById("testTypeSelect");
+
+  const selectedModel = dropdown.value;
+  const selectedTestType = testtypeSelect.value;
+
+  if (!selectedModel || selectedModel === "Select Models") {
+    alert("Please select a model.");
+    return;
+  }
+
+  if (selectedModel === "add_new_model") {
+    const newModelName = prompt("Enter new model name:");
+    const password = prompt("Enter admin password to add new model:");
+
+    if (password === "admin123" && newModelName) {
+
+      const option = document.createElement("option");
+      option.value = newModelName;
+      option.textContent = newModelName;
+
+      const addNewOption = dropdown.querySelector('[value="add_new_model"]');
+      dropdown.insertBefore(option, addNewOption);
+
+      dropdown.value = newModelName;
+
+      populateForm({...data, [newModelName]: {"CDC": DEFAULT_THRESHOLDS, "Sanity": DEFAULT_THRESHOLDS}});
+      alert(`New model "${newModelName}" added. Please set thresholds and save.`);
+      return;
+
+    } else {
+      alert("Incorrect password or invalid model name.");
+      return;
+    }
+  }
+
+  try {
+
+    populateHeadersForm(headers);
+
+    const modelData = data[selectedModel];
+    const finalData = modelData[selectedTestType];
+
+    for (const mode of ["charge", "discharge"]) {
+      for (const [key, value] of Object.entries(finalData[mode])) {
+
+        const inputName = `${mode}_${key.toLowerCase()}`;
+        const input = form.querySelector(`[name="${inputName}"]`);
+
+        if (input) {
+          input.value = value;
+        } else {
+          console.warn(`Input not found for: ${inputName}`);
+        }
+
+      }
+    }
+
+  } catch (err) {
+    console.error("Error loading model data:", err);
+  }
+}
 /* ============================================================
    2️⃣ Populate Form Inputs
    ============================================================ */
@@ -154,52 +229,53 @@ function populateForm(data) {
   dropdown.appendChild(addNewOption);
   dropdown.value = dropdown.options[1].value; // select first model by default
 
-  // add the event listener to dropdown to repopulate the form on change
-  dropdown.addEventListener("change", (e) => {
-    const selectedModel = e.target.value;
-    // console.log(selectedModel);
+  // // add the event listener to dropdown to repopulate the form on change
+  // dropdown.addEventListener("change", (e) => {
+  //   populateHeadersForm(finaldata["Headers"]);
+  //   const selectedModel = e.target.value;
+  //   // console.log(selectedModel);
     
-    if (selectedModel === "add_new_model") {
-      const newModelName = prompt("Enter new model name:");
-      const password = prompt("Enter admin password to add new model:");
-      if (password === "admin123" && newModelName) {
-        // add new model to the dropdown
-        const option = document.createElement("option");
-        option.value = newModelName;
-        option.textContent = newModelName;
-        dropdown.insertBefore(option, addNewOption);
-        dropdown.value = newModelName;
-        // initialize the form with default thresholds
-        populateForm({...data, [newModelName]: {"CDC": DEFAULT_THRESHOLDS, "Sanity": DEFAULT_THRESHOLDS}});
-        alert(`New model "${newModelName}" added. Please set thresholds and save.`);
-      } else {
-        alert("Incorrect password or invalid model name. Cannot add new model.");
-        dropdown.value = dropdown.options[1].value; // revert to first model
-      }
-      return;
-    }
-    try {
-      populateHeadersForm(finaldata["Headers"]);
-      const testtypeSelect = document.getElementById("testTypeSelect");
-      const selectedTestType = testtypeSelect.value;
-      const modelData = data[selectedModel];
-      const finalData = modelData[selectedTestType];
+  //   if (selectedModel === "add_new_model") {
+  //     const newModelName = prompt("Enter new model name:");
+  //     const password = prompt("Enter admin password to add new model:");
+  //     if (password === "admin123" && newModelName) {
+  //       // add new model to the dropdown
+  //       const option = document.createElement("option");
+  //       option.value = newModelName;
+  //       option.textContent = newModelName;
+  //       dropdown.insertBefore(option, addNewOption);
+  //       dropdown.value = newModelName;
+  //       // initialize the form with default thresholds
+  //       populateForm({...data, [newModelName]: {"CDC": DEFAULT_THRESHOLDS, "Sanity": DEFAULT_THRESHOLDS}});
+  //       alert(`New model "${newModelName}" added. Please set thresholds and save.`);
+  //     } else {
+  //       alert("Incorrect password or invalid model name. Cannot add new model.");
+  //       dropdown.value = dropdown.options[1].value; // revert to first model
+  //     }
+  //     return;
+  //   }
+  //   try {
+  //         populateHeadersForm(finaldata["Headers"]);
+  //     const testtypeSelect = document.getElementById("testTypeSelect");
+  //     const selectedTestType = testtypeSelect.value;
+  //     const modelData = data[selectedModel];
+  //     const finalData = modelData[selectedTestType];
 
-      for (const mode of ["charge", "discharge"]) {    
-        for (const [key, value] of Object.entries(finalData[mode])) {
-          const inputName = `${mode}_${key.toLowerCase()}`;
-          const input = form.querySelector(`[name="${inputName}"]`);
-          if (input) {
-            input.value = value;
-          } else {
-            console.warn(`Input not found for: ${inputName}`);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Error populating form for selected model:", err);
-    }
-  });
+  //     for (const mode of ["charge", "discharge"]) {    
+  //       for (const [key, value] of Object.entries(finalData[mode])) {
+  //         const inputName = `${mode}_${key.toLowerCase()}`;
+  //         const input = form.querySelector(`[name="${inputName}"]`);
+  //         if (input) {
+  //           input.value = value;
+  //         } else {
+  //           console.warn(`Input not found for: ${inputName}`);
+  //         }
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error("Error populating form for selected model:", err);
+  //   }
+  // });
   
   
   const model = dropdown.options[1].value; // select first model by default
@@ -209,26 +285,26 @@ function populateForm(data) {
   const finalData = modelData[testType];
 
   
-  // add event listener to test type dropdown
-  testtypeSelect.addEventListener("change", (e) => {
-    populateHeadersForm(finaldata["Headers"]);
-    const selectedTestType = e.target.value;
-    const selectedModel = dropdown.value;
-    const modelData = data[selectedModel];
-    const finalData = modelData[selectedTestType];
-    for (const mode of ["charge", "discharge"]) {
-      for (const [key, value] of Object.entries(finalData[mode])) {
-        const inputName = `${mode}_${key.toLowerCase()}`; 
-        const input = form.querySelector(`[name="${inputName}"]`);
-        if (input) {
-          input.value = value;
-        }
-        else {
-          console.warn(`Input not found for: ${inputName}`);
-        }
-      }
-    }
-  });
+  // // add event listener to test type dropdown
+  // testtypeSelect.addEventListener("change", (e) => {
+  //   populateHeadersForm(finaldata["Headers"]);
+  //   const selectedTestType = e.target.value;
+  //   const selectedModel = dropdown.value;
+  //   const modelData = data[selectedModel];
+  //   const finalData = modelData[selectedTestType];
+  //   for (const mode of ["charge", "discharge"]) {
+  //     for (const [key, value] of Object.entries(finalData[mode])) {
+  //       const inputName = `${mode}_${key.toLowerCase()}`; 
+  //       const input = form.querySelector(`[name="${inputName}"]`);
+  //       if (input) {
+  //         input.value = value;
+  //       }
+  //       else {
+  //         console.warn(`Input not found for: ${inputName}`);
+  //       }
+  //     }
+  //   }
+  // });
   for (const mode of ["charge", "discharge"]) {    
     for (const [key, value] of Object.entries(finalData[mode])) {
       const inputName = `${mode}_${key.toLowerCase()}`;
