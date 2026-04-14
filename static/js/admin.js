@@ -120,7 +120,7 @@ async function loadThresholds() {
     const res = await BTS.apiFetch(`${BTS.API_BASE}/api/thresholds`);
     if (!res) return;
     const data = await res.json();
-    // console.log(data);
+    console.log(data);
     GLOBAL_THRESHOLD_DATA = data["Thresholds"];
     GLOBAL_HEADER_DATA = data["Headers"];
     
@@ -327,7 +327,10 @@ function populateHeadersForm(data) {
   const testtypeSelect = document.getElementById("testTypeSelect");
   const selectedTestType = testtypeSelect.value;
   const modelData = data[selectedModel];
-  const finalData = modelData[selectedTestType]['header'];
+  // console.log(modelData);
+  
+  const finalData = modelData[selectedTestType];
+  // console.log(finalData);
   for (const [key, value] of Object.entries(finalData)) {
     const inputName = `header_${key.toLowerCase()}`;
     const input = formHeaders.querySelector(`[name="${inputName}"]`);
@@ -383,6 +386,8 @@ async function saveThresholds(e) {
     if (res && res.ok) {
       const data = await res.json();
       alert("✅ Thresholds saved successfully!");
+      // when pressed ok reload the page
+      window.location.reload();
     } else {
       alert("⚠️ Failed to save thresholds.");
     }

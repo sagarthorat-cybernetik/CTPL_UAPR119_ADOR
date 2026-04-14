@@ -151,7 +151,7 @@ def connect_plc():
     plc = ModbusClient(host="192.168.205.161", port=502, auto_open=True)
     return plc
 
-def load_thresholds():
+# def load_thresholds():
     try:
         if not os.path.exists(config_file):
             save_thresholds(DEFAULT_THRESHOLDS)
@@ -164,46 +164,233 @@ def load_thresholds():
         logging.error(f"Error loading thresholds: {e}")
         return DEFAULT_THRESHOLDS
 
-def save_thresholds(data):
-    try:
-        with open(config_file, "r") as f:
-            existing_data = json.load(f)
-        if "Thresholds" not in existing_data:
-            existing_data["Thresholds"] = {}
+# def save_thresholds(data):
+#     try:
+#         with open(config_file, "r") as f:
+#             existing_data = json.load(f)
+#         if "Thresholds" not in existing_data:
+#             existing_data["Thresholds"] = {}
 
-        # incoming data format:
-        # { "L2": { "CDC": { "charge": {...}, "discharge": {...} } } }
+#         # incoming data format:
+#         # { "L2": { "CDC": { "charge": {...}, "discharge": {...} } } }
+
+#         for model_name, model_block in data.items():
+#             if model_name not in existing_data["Thresholds"]:
+#                 existing_data["Thresholds"][model_name] = {}
+
+#             for test_type, test_block in model_block.items():
+#                 if test_type not in existing_data["Thresholds"][model_name]:
+#                     existing_data["Thresholds"][model_name][test_type] = {}
+
+#                 for mode in ["charge", "discharge"]:
+#                     if mode not in test_block:
+#                         continue
+
+#                     if mode not in existing_data["Thresholds"][model_name][test_type]:
+#                         existing_data["Thresholds"][model_name][test_type][mode] = {}
+
+#                     # 🔥 SAFE MERGE HERE
+#                     existing_data["Thresholds"][model_name][test_type][mode].update(
+#                         test_block[mode]
+#                     )
+
+#         with open(config_file, "w") as f:
+#             json.dump(existing_data, f, indent=2)
+
+#         return True
+
+#     except Exception as e:
+#         logging.error(f"Error saving thresholds: {e}")
+#         return False
+
+def load_thresholds():
+    try:
+        conn = connect_db()
+        if conn is None:
+            return {}
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT model_name, test_type, mode, key_name, value
+            FROM batterypack_tester_master_thresholds
+        """)
+
+        rows = cursor.fetchall()
+
+        result = {}
+
+        for row in rows:
+            model, test, mode, key, value = row
+
+            result.setdefault(model, {}) \
+                  .setdefault(test, {}) \
+                  .setdefault(mode, {})[key] = value
+
+        cursor.close()
+        conn.close()
+        print("✅ Thresholds loaded successfully")
+        # print(json.dumps(result, indent=2))
+        headers = load_headers()
+        final_result = {
+            "Thresholds": result,
+            "Headers": headers
+        }
+        return final_result
+
+    except Exception as e:
+        logging.error(f"Error loading thresholds: {e}")
+        print(f"❌ Error loading thresholds: {e}")
+        return {}
+def load_headers():
+    try:
+        conn = connect_db()
+        if conn is None:
+            return {}
+
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT model_name, test_type, key_name, value
+            FROM batterypack_tester_master_headers
+        """)
+
+        rows = cursor.fetchall()
+
+        result = {}
+
+        for row in rows:
+            model, test, key, value = row
+
+            result.setdefault(model, {}) \
+                  .setdefault(test, {})[key] = value
+
+        cursor.close()
+        conn.close()
+
+        return result
+
+    except Exception as e:
+        logging.error(f"Error loading headers: {e}")
+        print(f"❌ Error loading headers: {e}")
+        return {}
+def save_headers(data):
+    try:
+        conn = connect_db()
+        if conn is None:
+            return False
+
+        cursor = conn.cursor()
+        # print(f"Saving headers to database for data: {data}")
 
         for model_name, model_block in data.items():
-            if model_name not in existing_data["Thresholds"]:
-                existing_data["Thresholds"][model_name] = {}
-
             for test_type, test_block in model_block.items():
-                if test_type not in existing_data["Thresholds"][model_name]:
-                    existing_data["Thresholds"][model_name][test_type] = {}
+
+                # ✅ extract properly
+                header_data = test_block.get("header", {})
+                non_standard = test_block.get("non_standard", 0)
+
+                # 🔹 1. Save header fields
+                for key, value in header_data.items():
+
+                    cursor.execute("""
+                        MERGE batterypack_tester_master_headers AS target
+                        USING (SELECT ? AS model_name, ? AS test_type, ? AS key_name) AS source
+                        ON target.model_name = source.model_name
+                        AND target.test_type = source.test_type
+                        AND target.key_name = source.key_name
+
+                        WHEN MATCHED THEN
+                            UPDATE SET value = ?
+
+                        WHEN NOT MATCHED THEN
+                            INSERT (model_name, test_type, key_name, value)
+                            VALUES (?, ?, ?, ?);
+                    """, (
+                        model_name, test_type, key,
+                        str(value),  # 🔥 always cast
+                        model_name, test_type, key, str(value)
+                    ))
+
+                # 🔹 2. Save non_standard separately
+                cursor.execute("""
+                    MERGE batterypack_tester_master_headers AS target
+                    USING (SELECT ? AS model_name, ? AS test_type, 'non_standard' AS key_name) AS source
+                    ON target.model_name = source.model_name
+                    AND target.test_type = source.test_type
+                    AND target.key_name = 'non_standard'
+
+                    WHEN MATCHED THEN
+                        UPDATE SET value = ?
+
+                    WHEN NOT MATCHED THEN
+                        INSERT (model_name, test_type, key_name, value)
+                        VALUES (?, ?, 'non_standard', ?);
+                """, (
+                    model_name, test_type,
+                    str(non_standard),
+                    model_name, test_type, str(non_standard)
+                ))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        # print("✅ Headers saved successfully")
+        return True
+
+    except Exception as e:
+        logging.error(f"Error saving headers: {e}")
+        print(f"❌ Error saving headers: {e}")
+        return False
+
+def save_thresholds(data):
+    try:
+        conn = connect_db()
+        if conn is None:
+            return False
+
+        cursor = conn.cursor()
+
+        for model_name, model_block in data.items():
+            for test_type, test_block in model_block.items():
 
                 for mode in ["charge", "discharge"]:
                     if mode not in test_block:
                         continue
 
-                    if mode not in existing_data["Thresholds"][model_name][test_type]:
-                        existing_data["Thresholds"][model_name][test_type][mode] = {}
+                    for key, value in test_block[mode].items():
 
-                    # 🔥 SAFE MERGE HERE
-                    existing_data["Thresholds"][model_name][test_type][mode].update(
-                        test_block[mode]
-                    )
+                        cursor.execute("""
+                            MERGE batterypack_tester_master_thresholds AS target
+                            USING (SELECT ? AS model_name, ? AS test_type, ? AS mode, ? AS key_name) AS source
+                            ON target.model_name = source.model_name
+                            AND target.test_type = source.test_type
+                            AND target.mode = source.mode
+                            AND target.key_name = source.key_name
 
-        with open(config_file, "w") as f:
-            json.dump(existing_data, f, indent=2)
+                            WHEN MATCHED THEN
+                                UPDATE SET value = ?
+
+                            WHEN NOT MATCHED THEN
+                                INSERT (model_name, test_type, mode, key_name, value)
+                                VALUES (?, ?, ?, ?, ?);
+                        """, (
+                            model_name, test_type, mode, key,
+                            value,
+                            model_name, test_type, mode, key, value
+                        ))
+
+        conn.commit()
+        cursor.close()
+        conn.close()
 
         return True
 
     except Exception as e:
         logging.error(f"Error saving thresholds: {e}")
+        print(f"❌ Error saving thresholds: {e}")
         return False
-
-
 
 # =========================================================
 #  Routes
@@ -243,41 +430,23 @@ def get_thresholds():
 def update_thresholds():
     data = request.get_json()
 
-    save_thresholds(data)
+    success = save_thresholds(data)
 
-    logging.info(f"Thresholds updated: {data}")
-    return json_response({"message": "Thresholds updated"})
+    if success:
+        return json_response({"message": "Thresholds updated"})
+    else:
+        return json_response({"error": "Failed"}, 500)
 
 @app.route("/api/headers", methods=["POST"])
 def update_headers():
     data = request.get_json()
-    try:
-        # Load existing config
-        with open(config_file, "r") as f:
-            existing_data = json.load(f)
-        # Ensure "Headers" key exists
-        if "Headers" not in existing_data:
-            existing_data["Headers"] = {}
-        for model_name, model_block in data.items():
-            for test_type, test_block in model_block.items():
-                if model_name not in existing_data["Headers"]:
-                    existing_data["Headers"][model_name] = {}
-                if test_type not in existing_data["Headers"][model_name]:
-                    existing_data["Headers"][model_name][test_type] = {}
-                existing_data["Headers"][model_name][test_type].update(
-                    test_block
-                )
 
-        # Write back to file
-        with open(config_file, "w") as f:
-            json.dump(existing_data, f, indent=2)
+    success = save_headers(data)
 
-        logging.info(f"Headers updated: {existing_data['Headers']}")
+    if success:
         return json_response({"message": "Headers updated"})
-
-    except Exception as e:
-        logging.error(f"Error saving headers: {e}")
-        return json_response({"error": "Failed to update headers"}, 500)
+    else:
+        return json_response({"error": "Failed"}, 500)
     
 @app.route("/api/devices", methods=["GET"])
 def get_devices(): 

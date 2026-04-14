@@ -147,7 +147,7 @@ function renderGalleryHRD_HRC() {
 
 function loadmachine1(){
   current_machine="Machine 1";
-  selectDevice(6);
+  selectDevice(2);
   document.getElementById("current-machine").innerText="HRD/HRC";
   // hide machine 1 button and show others
 
@@ -298,6 +298,21 @@ async function handleCircuitAction(e, circuit) {
   }
 }
 
+function applyStatusColor(el, status) {
+  if (!el) return;
+  console.log(el, status);
+  
+  if (status === "FAIL") {
+    el.classList.add("text-red-500");
+    el.classList.remove("text-green-500");
+  } else if (status === "PASS") {
+    el.classList.add("text-green-500");
+    el.classList.remove("text-red-500");
+  } else {
+    el.classList.remove("text-red-500", "text-green-500");
+  }
+}
+
 /* ============================================================
    6️⃣ Live Data Updates (from websocket.js)
    ============================================================ */
@@ -331,14 +346,18 @@ function updateLiveCircuitData(payload) {
       const capacity_el = article.querySelector(`#Ch_Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (capacity_el) {
         capacity_el.textContent = payload.data_update.results.charge.Capacity !== undefined ? `${Number(payload.data_update.results.charge.Capacity).toFixed(4)}` : "--Ah";
+        // capacity_el.textContent = payload.data_update.results.charge.Capacity !== undefined? `${Number(payload.data_update.results.charge.Capacity).toFixed(4)}`: "--Ah";
+         applyStatusColor(capacity_el,    payload.data_update.evaluated?.Capacity?.status);
       }
       const pack_voltage_el = article.querySelector(`#Ch_Voltage_Pack-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (pack_voltage_el) {
         pack_voltage_el.textContent = payload.data_update.results.charge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Pack_Voltage).toFixed(4)} V` : "--V";
+        applyStatusColor(pack_voltage_el,    payload.data_update.evaluated?.Pack_Voltage?.status);
       }
       const max_cell_voltage_el = article.querySelector(`#Ch_Voltage_Cell-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (max_cell_voltage_el) {
         max_cell_voltage_el.textContent = payload.data_update.results.charge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.charge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
+        applyStatusColor(max_cell_voltage_el,    payload.data_update.evaluated?.Max_Cell_Voltage?.status);
       }
       // update metrics
       const cell_deviation_el = article.querySelector(`#Ch_Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
@@ -346,39 +365,49 @@ function updateLiveCircuitData(payload) {
         // round to 4 decimal places
         const value = Number(payload.data_update.results.charge.Cell_Deviation).toFixed(4);
         cell_deviation_el.textContent = payload.data_update.results.charge.Cell_Deviation !== undefined ? `${value} mV` : "--mV";
+        applyStatusColor(cell_deviation_el,    payload.data_update.evaluated?.Cell_Deviation?.status);
       }
       const temp_difference_el = article.querySelector(`#Ch_Delta_T-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (temp_difference_el) {
         temp_difference_el.textContent = payload.data_update.results.charge.temperature_difference !== undefined ? `${Number(payload.data_update.results.charge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
+        applyStatusColor(temp_difference_el,    payload.data_update.evaluated?.temperature_difference?.status);
       }
       const soc_el = article.querySelector(`#Ch_SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (soc_el) {
         soc_el.textContent = payload.data_update.results.charge.SOC !== undefined ? `${Number(payload.data_update.results.charge.SOC).toFixed(4)} %` : "--%";
+        applyStatusColor(soc_el,    payload.data_update.evaluated?.SOC?.status);
       }
       const discharge_capacity_el = article.querySelector(`#DCh_Capacity-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (discharge_capacity_el) {
         discharge_capacity_el.textContent = payload.data_update.results.discharge.Capacity !== undefined ? `${Number(payload.data_update.results.discharge.Capacity).toFixed(4)}` : "--Ah";
+        applyStatusColor(discharge_capacity_el,    payload.data_update.evaluated?.Capacity?.status);
       }
       const discharge_pack_voltage_el = article.querySelector(`#DCh_Voltage_Pack-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (discharge_pack_voltage_el) {
         discharge_pack_voltage_el.textContent = payload.data_update.results.discharge.Pack_Voltage !== undefined ? `${Number(payload.data_update.results.discharge.Pack_Voltage).toFixed(4)} V` : "--V";
+        applyStatusColor(discharge_pack_voltage_el,    payload.data_update.evaluated?.Pack_Voltage?.status);
       }
       const discharge_max_cell_voltage_el = article.querySelector(`#DCh_Voltage_Cell-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (discharge_max_cell_voltage_el) {
         discharge_max_cell_voltage_el.textContent = payload.data_update.results.discharge.Max_Cell_Voltage !== undefined ? `${Number(payload.data_update.results.discharge.Max_Cell_Voltage).toFixed(4)} V` : "--V";
+        applyStatusColor(discharge_max_cell_voltage_el,    payload.data_update.evaluated?.Max_Cell_Voltage?.status);
       }
       const discharge_cell_deviation_el = article.querySelector(`#DCh_Cell_Deviation-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (discharge_cell_deviation_el) {
         discharge_cell_deviation_el.textContent = payload.data_update.results.discharge.Cell_Deviation !== undefined ? `${Number(payload.data_update.results.discharge.Cell_Deviation).toFixed(4)} mV` : "--mV";
+        applyStatusColor(discharge_cell_deviation_el,    payload.data_update.evaluated?.Cell_Deviation?.status);
       }
       const discharge_temp_difference_el = article.querySelector(`#DCh_Delta_T_Max-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (discharge_temp_difference_el) {
         discharge_temp_difference_el.textContent = payload.data_update.results.discharge.temperature_difference !== undefined ? `${Number(payload.data_update.results.discharge.temperature_difference).toFixed(4)} ˚C` : "--˚C";
+        applyStatusColor(discharge_temp_difference_el,    payload.data_update.evaluated?.temperature_difference?.status);
       }
       const end_soc_el = article.querySelector(`#END_SOC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (end_soc_el) {
         end_soc_el.textContent = payload.data_update.results.discharge.End_SOC !== undefined ? `${Number(payload.data_update.results.discharge.End_SOC).toFixed(4)} %` : "--%";
+        applyStatusColor(end_soc_el,    payload.data_update.evaluated?.End_SOC?.status);
       }
+
 
     });
   }
@@ -401,10 +430,12 @@ function updateLiveCircuitData(payload) {
       const hrc_el = article.querySelector(`#HRC-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (hrc_el) {
         hrc_el.textContent = payload.data_update.results.charge.HRC !== undefined ? `${Number(payload.data_update.results.charge.HRC).toFixed(4)}` : "--";
+        applyStatusColor(hrc_el,    payload.data_update.evaluated?.HRC?.status);
       }
       const hrd_el = article.querySelector(`#HRD-${payload.data_update.meta.device_id}-${payload.data_update.meta.device_channel}`);
       if (hrd_el) {
         hrd_el.textContent = payload.data_update.results.discharge.HRD !== undefined ? `${Number(payload.data_update.results.discharge.HRD).toFixed(4)}` : "--";
+        applyStatusColor(hrd_el,    payload.data_update.evaluated?.HRD?.status);
       }
     });
   }

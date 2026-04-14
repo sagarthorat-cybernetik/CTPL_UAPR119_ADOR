@@ -158,6 +158,12 @@ button, input, select {
 .btn-full {
   width: 100%;
 }
+.text-red-500{
+  color: red;
+}
+.text-green-500{
+  color: green;
+}
 .loadbutton{
     padding: 0.5vh;
     font-family: var(--font-main);
@@ -693,7 +699,7 @@ width: 80%;
 }
 .metric .value {
   font-weight: 700;
-  color: var(--text-primary);
+  /* color: var(--text-primary); */
   font-size: 0.85rem;
 }
 
