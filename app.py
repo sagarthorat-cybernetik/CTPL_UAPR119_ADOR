@@ -890,10 +890,12 @@ def background_reader_thread():
                     if test_type == "Sanity" or test_type == "CDC":
                         with file_lock:
                             try:
-                                with open(os.path.join(BASE_DIR, "config.json"), "r") as cf:
-                                    config = json.load(cf)
+                                # with open(os.path.join(BASE_DIR, "config.json"), "r") as cf:
+                                #     config = json.load(cf)
+                                data = load_thresholds()
 
-                                headers = config["Headers"]
+                                # headers = config["Headers"]
+                                headers = data["Headers"]
                                 headers = headers[battery_type]
                                 is_standerd = not int(headers[test_type]["non_standard"])
                                 headers = headers[test_type]['header']
@@ -1023,10 +1025,14 @@ def background_reader_thread():
                     else:
                         with file_lock:
                             try:
-                                with open(os.path.join(BASE_DIR, "config.json"), "r") as cf:
-                                    config = json.load(cf)
+                                # with open(os.path.join(BASE_DIR, "config.json"), "r") as cf:
+                                #     config = json.load(cf)
 
-                                headers = config["Headers"]
+                                # headers = config["Headers"]
+                                data = load_thresholds()
+
+                                # headers = config["Headers"]
+                                headers = data["Headers"]
                                 headers = headers[battery_type]
                                 headers = headers["CDC"]['header']
                                 # print("Using test type", test_type ,"headers:", headers)
