@@ -898,7 +898,8 @@ def background_reader_thread():
                                 headers = data["Headers"]
                                 headers = headers[battery_type]
                                 is_standerd = not int(headers[test_type]["non_standard"])
-                                headers = headers[test_type]['header']
+                                # print(data)
+                                headers = headers[test_type]['Header']
                                 # print("Using test type", test_type ,"headers:", headers)
                                 # print("Using headers:", headers)
                                 # extract the unique sheetNO and read only those sheets
@@ -1029,12 +1030,13 @@ def background_reader_thread():
                                 #     config = json.load(cf)
 
                                 # headers = config["Headers"]
-                                data = load_thresholds()
+                                config = load_thresholds()
 
-                                # headers = config["Headers"]
-                                headers = data["Headers"]
+                                headers = config["Headers"]
+                                # headers = data["Headers"]
                                 headers = headers[battery_type]
-                                headers = headers["CDC"]['header']
+                                # print(headers)
+                                headers = headers["CDC"]
                                 # print("Using test type", test_type ,"headers:", headers)
                                 # extract the unique sheetNO for the HRD and HRC only and read only those sheets
                                 unique_sheets = set()

@@ -59,6 +59,9 @@
           "Max_Cell_Temperature": "MaxTemp",
           "Min_Cell_Temperature": "MinTemp",
           "SOC": "SOC",
+          "End_SOC": "SOC",
+          "HRD": "HRC",
+          "HRC": "HRD",
           "Temperature_Difference": "Temp Difference \u2206T (Manual)",
           "Sheet_Name_Cell_Deviation": "3",
           "Sheet_Name_Capacity": "1",
@@ -68,9 +71,12 @@
           "Sheet_Name_Max_Cell_Temperature": "3",
           "Sheet_Name_Min_Cell_Temperature": "3",
           "Sheet_Name_SOC": "3",
-          "Sheet_Name_Temperature_Difference": "3"
+          "Sheet_Name_Temperature_Difference": "3",
+          "Sheet_Name_END_SOC": "3",
+          "Sheet_Name_HRD": "3",
+          "Sheet_Name_HRC": "3"
         },
-        "non_standard": 1
+        "non_standard": 0
       },
       "Sanity": {
         "header": {
