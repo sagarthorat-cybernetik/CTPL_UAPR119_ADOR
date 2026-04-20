@@ -735,6 +735,10 @@ def send_result_to_database(test_type, data):
             insert_query = """
                 INSERT INTO batterytestresult ( DateTime , Serial_Number, Channel_No, Machine_No, Testing_Type, CH_Capacity_Ah, CH_Pack_Voltage_V, CH_HCV,CH_Cell_Deviation,CH_Temp, CH_Temp_Deviation, CH_SOC, DCH_Capacity_Ah, DCH_Pack_Voltage_V, DCH_LCV, DCH_Cell_Deviation, DCH_Temp, DCH_Temp_Deviation, DCH_SOC, END_SOC, STATUS, Step_Timing,Cycle_Time) values (?,?,?,?,?,?,?,?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """
+            utilization_query = """
+                INSERT INTO [dbo].[Packtester_Utilazation]  ([DateTime]           ,[Serial_Number]           ,[Machine_No]           ,[Channel_No]           ,[Testing_Type]           ,[Start_Time]           ,[End_Time]           ,[Actual_Time]) values (?,?,?,?,?,?,?,?)
+            
+            """
             cursor.execute(
                 insert_query, 
                 (
@@ -764,6 +768,24 @@ def send_result_to_database(test_type, data):
                 # data["data_update"]["Step_Timing"] ,
                 # data["data_update"]["Cycle_Time"]
             )
+            )
+               # Calculate actual time correctly
+            start_time = data["data_update"]["meta"]["start_time"]
+            end_time = data["data_update"]["meta"]["end_time"]
+            actual_time = (end_time - start_time).total_seconds() if start_time and end_time else None
+            cursor.execute(
+                utilization_query,
+                (
+                datetime.now(),
+                data["data_update"]["meta"]["battery_id"],
+                data["data_update"]["meta"]["device_id"],
+                data["data_update"]["meta"]["device_channel"],
+                data["data_update"]["meta"]["test_type"],
+                start_time,
+                end_time,
+                actual_time,  # Convert to seconds or appropriate format
+
+                )
             )
             conn.commit()
             cursor.close()
@@ -798,6 +820,10 @@ def send_result_to_database(test_type, data):
                 INSERT INTO HRD_Test_Stn (DateTime, ModuleBarcodeData, HRD_data, HRC_data, Status, CycleTime, StepTime)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """
+            utilization_query = """
+                INSERT INTO [dbo].[Packtester_Utilazation]  ([DateTime]           ,[Serial_Number]           ,[Machine_No]           ,[Channel_No]           ,[Testing_Type]           ,[Start_Time]           ,[End_Time]           ,[Actual_Time]) values (?,?,?,?,?,?,?,?)
+            
+            """
             # print(data)
             cursor.execute(insert_query, (
                 datetime.now(),
@@ -808,6 +834,24 @@ def send_result_to_database(test_type, data):
                 pd.to_timedelta(data["data_update"]["step_time"]).total_seconds() if data["data_update"]["step_time"] is not None else None,
                 pd.to_timedelta(data["data_update"]["cycle_time"]).total_seconds() if data["data_update"]["cycle_time"] is not None else None
             ))
+            # Calculate actual time correctly
+            start_time = data["data_update"]["meta"]["start_time"]
+            end_time = data["data_update"]["meta"]["end_time"]
+            actual_time = (end_time - start_time).total_seconds() if start_time and end_time else None
+            cursor.execute(
+                utilization_query,
+                (
+                    datetime.now(),
+                    data["data_update"]["meta"]["battery_id"],
+                    data["data_update"]["meta"]["device_id"],
+                    data["data_update"]["meta"]["device_channel"],
+                    data["data_update"]["meta"]["test_type"],
+                    start_time,
+                    end_time,
+                    actual_time,  # Convert to seconds or appropriate format
+                )
+            )
+
             conn.commit()
             cursor.close()
             conn.close()
@@ -1005,6 +1049,8 @@ def background_reader_thread():
                                     "device_id": device_id,
                                     "device_channel": device_channel,
                                     "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
+                                    "start_time":start_time,
+                                    "end_time":end_time,
                                 },
                                 "results": data,
                                 "evaluated": evaluated,
@@ -1088,6 +1134,8 @@ def background_reader_thread():
                                             "device_id": device_id,
                                             "device_channel": device_channel,
                                             "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
+                                            "start_time":start_time,
+                                            "end_time":end_time,
                                         },
                                         "results": data,
                                         "evaluated": evaluated,
