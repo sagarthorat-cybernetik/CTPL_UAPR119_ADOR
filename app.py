@@ -288,7 +288,11 @@ def save_headers(data):
 
                 # ✅ extract properly
                 header_data = test_block.get("header", {})
-                non_standard = test_block.get("non_standard", 0)
+                try:
+                    non_standard = 1 if test_block.get("non_standard", "false").lower() == "true" else 0
+                    non_standard = int(non_standard)
+                except Exception as e:
+                    non_standard = 1
 
                 # 🔹 1. Save header fields
                 for key, value in header_data.items():
@@ -651,6 +655,8 @@ def evaluate_thresholds(data, thresholds):
         """
         results = {}
         overall_pass = True
+        failed_parameters = []  # List to store failed parameter names
+        
         for mode in ["charge", "discharge"]:
             for key, value in data[mode].items():
                 min_key = f"{key}_min"
@@ -669,7 +675,12 @@ def evaluate_thresholds(data, thresholds):
 
                 if not is_ok:
                     overall_pass = False
-        return overall_pass, results
+                    # Add failed parameter with mode and key
+                    failed_parameters.append(f"{mode}_{key}")
+         # Create comma-separated string of failed parameters
+        fail_reason = ", ".join(failed_parameters) if failed_parameters else None
+        
+        return overall_pass, results,fail_reason
     except Exception as e:
         print(f"Error evaluating thresholds: {e}")
         logging.error(f"Error evaluating thresholds: {e}")
@@ -723,7 +734,7 @@ def connect_db():
 
 def send_result_to_database(test_type, data):
     try:
-        # print(f"Preparing to insert data into database for test type: {test_type} with data: {data}")
+        print(f"Preparing to insert data into database for test type: {test_type} with data: {data}")
         if test_type == "CDC" or test_type == "Sanity":
             conn = connect_db()
             if conn is None:
@@ -733,12 +744,14 @@ def send_result_to_database(test_type, data):
             cursor = conn.cursor()
             # Insert data into the database
             insert_query = """
-                INSERT INTO batterytestresult ( DateTime , Serial_Number, Channel_No, Machine_No, Testing_Type, CH_Capacity_Ah, CH_Pack_Voltage_V, CH_HCV,CH_Cell_Deviation,CH_Temp, CH_Temp_Deviation, CH_SOC, DCH_Capacity_Ah, DCH_Pack_Voltage_V, DCH_LCV, DCH_Cell_Deviation, DCH_Temp, DCH_Temp_Deviation, DCH_SOC, END_SOC, STATUS, Step_Timing,Cycle_Time) values (?,?,?,?,?,?,?,?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                INSERT INTO batterytestresult ( DateTime , Serial_Number, Channel_No, Machine_No, Testing_Type, CH_Capacity_Ah, CH_Pack_Voltage_V, CH_HCV,CH_Cell_Deviation,CH_Temp, CH_Temp_Deviation, CH_SOC, DCH_Capacity_Ah, DCH_Pack_Voltage_V, DCH_LCV, DCH_Cell_Deviation, DCH_Temp, DCH_Temp_Deviation, DCH_SOC, END_SOC, STATUS, Step_Timing,Cycle_Time,fail_reason) values (?,?,?,?,?,?,?,?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             """
             utilization_query = """
                 INSERT INTO [dbo].[Packtester_Utilazation]  ([DateTime]           ,[Serial_Number]           ,[Machine_No]           ,[Channel_No]           ,[Testing_Type]           ,[Start_Time]           ,[End_Time]           ,[Actual_Time]) values (?,?,?,?,?,?,?,?)
             
             """
+               # Get fail_reason from payload
+            fail_reason = data["data_update"].get("fail_reason", None)
             cursor.execute(
                 insert_query, 
                 (
@@ -764,15 +777,37 @@ def send_result_to_database(test_type, data):
                 data["data_update"]["results"]["discharge"]["End_SOC"],
                 1 if data["data_update"]["final_status"] == "PASS" else 2,
                 pd.to_timedelta(data["data_update"]["step_time"]).total_seconds() if data["data_update"]["step_time"] is not None else None,
-                pd.to_timedelta(data["data_update"]["cycle_time"]).total_seconds() if data["data_update"]["cycle_time"] is not None else None
-                # data["data_update"]["Step_Timing"] ,
-                # data["data_update"]["Cycle_Time"]
+                pd.to_timedelta(data["data_update"]["cycle_time"]).total_seconds() if data["data_update"]["cycle_time"] is not None else None,
+                fail_reason
+            
             )
             )
                # Calculate actual time correctly
-            start_time = data["data_update"]["meta"]["start_time"]
-            end_time = data["data_update"]["meta"]["end_time"]
-            actual_time = (end_time - start_time).total_seconds() if start_time and end_time else None
+            # Convert string timestamps back to datetime for calculation
+            start_time_str = data["data_update"]["meta"]["start_time"]
+            end_time_str = data["data_update"]["meta"]["end_time"]
+            
+            # Parse strings to datetime objects
+            if isinstance(start_time_str, str):
+                start_time = pd.to_datetime(start_time_str)
+            else:
+                start_time = start_time_str
+                
+            if isinstance(end_time_str, str):
+                end_time = pd.to_datetime(end_time_str)
+            else:
+                end_time = end_time_str
+            
+            # Calculate actual time in seconds
+            if start_time and end_time:
+                actual_time = (end_time - start_time).total_seconds()
+            else:
+                actual_time = None
+            print(start_time, end_time, actual_time)
+            # Convert datetime objects to string format for database
+            start_time_str_for_db = start_time.strftime("%Y-%m-%d %H:%M:%S") if hasattr(start_time, 'strftime') else str(start_time)
+            end_time_str_for_db = end_time.strftime("%Y-%m-%d %H:%M:%S") if hasattr(end_time, 'strftime') else str(end_time)
+
             cursor.execute(
                 utilization_query,
                 (
@@ -781,8 +816,8 @@ def send_result_to_database(test_type, data):
                 data["data_update"]["meta"]["device_id"],
                 data["data_update"]["meta"]["device_channel"],
                 data["data_update"]["meta"]["test_type"],
-                start_time,
-                end_time,
+                start_time_str_for_db,
+                end_time_str_for_db,
                 actual_time,  # Convert to seconds or appropriate format
 
                 )
@@ -790,7 +825,7 @@ def send_result_to_database(test_type, data):
             conn.commit()
             cursor.close()
             conn.close()
-            # print("Data inserted into database successfully.")
+            print("Data inserted into database successfully.")
             logging.info(f"Data inserted into database for Battery ID {data['data_update']['meta']['battery_id']} with status {data['data_update']['final_status']}")
         else:
             # hrd/hrc
@@ -855,7 +890,7 @@ def send_result_to_database(test_type, data):
             conn.commit()
             cursor.close()
             conn.close()
-            # print("HRD/HRC Data inserted into database successfully.")
+            print("HRD/HRC Data inserted into database successfully.")
             logging.info(f"HRD/HRC Data inserted into database for Battery ID {data['data_update']['meta']['battery_id']} with status {data['data_update']['final_status']}")
     except Exception as e:
         print(f"Error inserting data into database: {e}")
@@ -936,14 +971,19 @@ def background_reader_thread():
                             try:
                                 # with open(os.path.join(BASE_DIR, "config.json"), "r") as cf:
                                 #     config = json.load(cf)
-                                data = load_thresholds()
-
-                                # headers = config["Headers"]
-                                headers = data["Headers"]
-                                headers = headers[battery_type]
-                                is_standerd = not int(headers[test_type]["non_standard"])
+                                config = load_thresholds()
                                 # print(data)
-                                headers = headers[test_type]['Header']
+                                
+                                # headers = config["Headers"]
+                                headers = config["Headers"]
+                                headers = headers[battery_type]
+                                try:
+                                    is_standerd = not int(headers[test_type]["non_standard"])
+                                except Exception as e:
+                                    is_standerd = 1
+                                # print(data)
+                                headers = headers[test_type]
+
                                 # print("Using test type", test_type ,"headers:", headers)
                                 # print("Using headers:", headers)
                                 # extract the unique sheetNO and read only those sheets
@@ -1033,13 +1073,17 @@ def background_reader_thread():
                         print("Extracted Data:", data)
                         thresholds_config = load_thresholds()
                         threshold_block = thresholds_config["Thresholds"][battery_type][test_type]
-                        overall_pass, evaluated = evaluate_thresholds(data, threshold_block)
+                        overall_pass, evaluated, fail_reason  = evaluate_thresholds(data, threshold_block)
+                        print(f"Evaluated Results: {evaluated}, Overall Pass: {overall_pass}, Fail Reason: {fail_reason}")
                         final_status = "PASS" if overall_pass else "FAIL"
 
                         data["charge"] = {k: to_native(v) for k, v in data["charge"].items()}
                         data["discharge"] = {k: to_native(v) for k, v in data["discharge"].items()}
                         data = sanitize_json(data)
                         evaluated = sanitize_json(evaluated)
+                        start_time_str = start_time.isoformat() if hasattr(start_time, 'isoformat') else str(start_time)
+                        end_time_str = end_time.isoformat() if hasattr(end_time, 'isoformat') else str(end_time)
+
                         payload = {
                             "data_update": {
                                 "meta": {
@@ -1049,12 +1093,13 @@ def background_reader_thread():
                                     "device_id": device_id,
                                     "device_channel": device_channel,
                                     "timestamp": date_time.strftime("%Y-%m-%d %H:%M:%S"),
-                                    "start_time":start_time,
-                                    "end_time":end_time,
+                                    "start_time":start_time_str,
+                                    "end_time":end_time_str,
                                 },
                                 "results": data,
                                 "evaluated": evaluated,
                                 "final_status": final_status,
+                                 "fail_reason": fail_reason,  # Add fail_reason to payload
                                 "step_time": str(step_timing) if step_timing is not None else None,
                                 "cycle_time": str(step_timing) if step_timing is not None else None
                             }
@@ -1116,7 +1161,8 @@ def background_reader_thread():
                                 threshold_block = thresholds_config["Thresholds"][battery_type]["CDC"]
                                 # print("Using Threshold Block:", threshold_block)
                                 # print(f"Evaluating  thresholds...")
-                                overall_pass, evaluated = evaluate_thresholds(data, threshold_block)
+                                overall_pass, evaluated, fail_reason = evaluate_thresholds(data, threshold_block)
+                                print(f"Evaluated Results: {evaluated}, Overall Pass: {overall_pass}, Fail Reason: {fail_reason}")
                                 # print("Evaluation Results:", evaluated, "Overall Pass:", overall_pass)
                                 final_status = "PASS" if overall_pass else "FAIL"
 
@@ -1125,6 +1171,9 @@ def background_reader_thread():
                                 data = to_native(data)
                                 data = sanitize_json(data)
                                 evaluated = sanitize_json(evaluated)
+                                start_time_str = start_time.isoformat() if hasattr(start_time, 'isoformat') else str(start_time)
+                                end_time_str = end_time.isoformat() if hasattr(end_time, 'isoformat') else str(end_time)
+
                                 payload = {
                                     "data_update": {
                                         "meta": {
@@ -1140,6 +1189,7 @@ def background_reader_thread():
                                         "results": data,
                                         "evaluated": evaluated,
                                         "final_status": final_status,
+                                         "fail_reason": fail_reason,  # Add fail_reason to payload
                                         "step_time": str(step_timing) if step_timing is not None else None,
                                         "cycle_time": str(cycle_timing) if cycle_timing is not None else None
                                     }
